@@ -1,0 +1,2585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>方向指导教学游戏</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Comic Sans MS', 'Arial', '微软雅黑', sans-serif;
+        background: linear-gradient(
+          135deg,
+          #ff9a9e 0%,
+          #fecfef 50%,
+          #a18cd1 100%
+        );
+        min-height: 100vh;
+        padding: 10px;
+        transition: background 0.5s;
+        position: relative;
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+
+      body::before {
+        content: '';
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.3) 1px,
+            transparent 1px
+          ),
+          radial-gradient(circle, rgba(255, 255, 255, 0.2) 1px, transparent 1px);
+        background-size: 50px 50px, 80px 80px;
+        background-position: 0 0, 40px 40px;
+        animation: float 20s linear infinite;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translate(0, 0);
+        }
+        100% {
+          transform: translate(-50px, -50px);
+        }
+      }
+
+      body.hard-mode {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      }
+
+      .game-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 25px 80px rgba(255, 105, 180, 0.4),
+          0 0 50px rgba(147, 112, 219, 0.3);
+        max-width: 1600px;
+        width: 100%;
+        margin: 0 auto;
+        overflow: visible;
+        position: relative;
+        z-index: 1;
+        border: 5px solid rgba(255, 255, 255, 0.5);
+      }
+
+      /* 顶部区域 */
+      .game-header {
+        background: linear-gradient(
+          135deg,
+          #ffa8a8 0%,
+          #ff6f91 50%,
+          #ff9671 100%
+        );
+        padding: 20px 30px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        transition: background 0.5s;
+        box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+      }
+
+      .hard-mode .game-header {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      }
+
+      .game-title {
+        font-size: 28px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .difficulty-badge {
+        background: rgba(255, 255, 255, 0.3);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+        animation: pulse-badge 2s infinite;
+      }
+
+      @keyframes pulse-badge {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      .game-stats {
+        display: flex;
+        gap: 30px;
+        align-items: center;
+      }
+
+      .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        opacity: 0.9;
+        margin-bottom: 5px;
+      }
+
+      .stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 5px 15px;
+        border-radius: 10px;
+      }
+
+      /* 主游戏区域 */
+      .game-main {
+        display: flex;
+        padding: 20px;
+        gap: 20px;
+        flex-wrap: wrap;
+        min-height: auto;
+      }
+
+      /* 左侧信息面板 */
+      .info-panel {
+        flex: 0 0 240px;
+        min-width: 240px;
+        max-width: 240px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .panel-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .panel-card h3 {
+        color: #667eea;
+        margin-bottom: 12px;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .hard-mode .panel-card h3 {
+        color: #e74c3c;
+      }
+
+      .destination-info {
+        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        padding: 12px;
+        border-radius: 10px;
+        text-align: center;
+      }
+
+      .destination-name {
+        font-size: 20px;
+        font-weight: bold;
+        color: #2d3436;
+        margin-bottom: 5px;
+      }
+
+      .destination-name-en {
+        font-size: 14px;
+        color: #636e72;
+      }
+
+      .destination-distance {
+        font-size: 12px;
+        color: #e74c3c;
+        margin-top: 5px;
+        font-weight: bold;
+      }
+
+      .direction-indicator {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        background: white;
+        border-radius: 10px;
+      }
+
+      .direction-arrow {
+        font-size: 32px;
+        color: #667eea;
+        transition: transform 0.3s;
+      }
+
+      .hard-mode .direction-arrow {
+        color: #e74c3c;
+      }
+
+      .direction-text {
+        font-size: 14px;
+        font-weight: bold;
+        color: #2d3436;
+      }
+
+      /* 任务列表 */
+      .mission-list {
+        max-height: 150px;
+        overflow-y: auto;
+      }
+
+      .mission-item {
+        padding: 10px;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+      }
+
+      .mission-item.active {
+        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        font-weight: bold;
+      }
+
+      .mission-item.completed {
+        opacity: 0.6;
+        text-decoration: line-through;
+      }
+
+      /* 障碍物提示 */
+      .obstacles-alert {
+        background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+        color: white;
+        padding: 12px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 13px;
+        animation: alert-pulse 1.5s infinite;
+        display: none;
+      }
+
+      .hard-mode .obstacles-alert {
+        display: block;
+      }
+
+      @keyframes alert-pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.8;
+        }
+      }
+
+      /* 难度选择 */
+      .difficulty-selector {
+        display: flex;
+        gap: 10px;
+      }
+
+      .difficulty-btn {
+        flex: 1;
+        padding: 10px;
+        border: 2px solid #dfe6e9;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 12px;
+      }
+
+      .difficulty-btn.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+      }
+
+      .hard-mode .difficulty-btn.active {
+        background: #e74c3c;
+        border-color: #e74c3c;
+      }
+
+      .difficulty-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      /* 地图区域 */
+      .map-container {
+        flex: 1 1 auto;
+        min-width: 300px;
+        max-width: 100%;
+      }
+
+      .map-wrapper {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .map-grid {
+        display: grid;
+        gap: 2px;
+        background: #dfe6e9;
+        border: 3px solid #2d3436;
+        border-radius: 10px;
+        overflow: hidden;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        aspect-ratio: 1;
+        grid-template-columns: repeat(8, 1fr);
+        grid-template-rows: repeat(8, 1fr);
+      }
+
+      .hard-mode .map-grid {
+        grid-template-columns: repeat(12, 1fr);
+        grid-template-rows: repeat(12, 1fr);
+      }
+
+      /* 任务列表侧边栏（困难模式） */
+      .mission-sidebar {
+        flex: 0 0 260px;
+        min-width: 260px;
+        max-width: 260px;
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: none;
+      }
+
+      .mission-sidebar-header {
+        margin-bottom: 15px;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      .mission-sidebar-header h3 {
+        color: #667eea;
+        margin: 0 0 8px 0;
+        font-size: 18px;
+      }
+
+      .mission-progress {
+        color: #2d3436;
+        font-weight: bold;
+        font-size: 16px;
+      }
+
+      .mission-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 500px;
+        overflow-y: auto;
+      }
+
+      .mission-item {
+        background: white;
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 4px solid #dfe6e9;
+        font-size: 13px;
+        line-height: 1.5;
+        transition: all 0.3s;
+      }
+
+      .mission-item.active {
+        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        border-left-color: #f39c12;
+        font-weight: bold;
+        box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+      }
+
+      .mission-item.completed {
+        background: #d5f4e6;
+        border-left-color: #00b894;
+        opacity: 0.7;
+        text-decoration: line-through;
+      }
+
+      .mission-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .grid-cell {
+        background: #ecf0f1;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        transition: all 0.3s;
+      }
+
+      .hard-mode .grid-cell {
+        font-size: 10px;
+      }
+
+      .grid-cell.road {
+        background: #95a5a6;
+        position: relative;
+      }
+
+      .grid-cell.road::after {
+        content: '';
+        position: absolute;
+        width: 80%;
+        height: 3px;
+        background: repeating-linear-gradient(
+          to right,
+          #f1c40f 0px,
+          #f1c40f 10px,
+          transparent 10px,
+          transparent 20px
+        );
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .hard-mode .grid-cell.road::after {
+        height: 2px;
+        background: repeating-linear-gradient(
+          to right,
+          #f1c40f 0px,
+          #f1c40f 8px,
+          transparent 8px,
+          transparent 16px
+        );
+      }
+
+      .grid-cell.road-vertical::after {
+        width: 3px;
+        height: 80%;
+        background: repeating-linear-gradient(
+          to bottom,
+          #f1c40f 0px,
+          #f1c40f 10px,
+          transparent 10px,
+          transparent 20px
+        );
+      }
+
+      .hard-mode .grid-cell.road-vertical::after {
+        width: 2px;
+        background: repeating-linear-gradient(
+          to bottom,
+          #f1c40f 0px,
+          #f1c40f 8px,
+          transparent 8px,
+          transparent 16px
+        );
+      }
+
+      .grid-cell.road-intersection::after {
+        content: none;
+      }
+
+      .grid-cell.road-intersection {
+        background: #7f8c8d;
+      }
+
+      .grid-cell.building {
+        background: #74b9ff;
+        cursor: pointer;
+      }
+
+      .grid-cell.building:hover {
+        transform: scale(1.05);
+        z-index: 10;
+      }
+
+      .grid-cell.obstacle {
+        background: #636e72;
+      }
+
+      .obstacle-icon {
+        font-size: 16px;
+      }
+
+      .grid-cell.oneway::before {
+        content: '→';
+        position: absolute;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        z-index: 5;
+      }
+
+      .grid-cell.oneway-up::before {
+        content: '↑';
+      }
+
+      .grid-cell.oneway-down::before {
+        content: '↓';
+      }
+
+      .grid-cell.oneway-left::before {
+        content: '←';
+      }
+
+      .building-icon {
+        font-size: 32px;
+      }
+
+      .hard-mode .building-icon {
+        font-size: 22px;
+      }
+
+      .building-label {
+        position: absolute;
+        bottom: 2px;
+        font-size: 10px;
+        color: #2d3436;
+        font-weight: bold;
+      }
+
+      .hard-mode .building-label {
+        font-size: 7px;
+        bottom: 1px;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 1px 2px;
+        border-radius: 2px;
+      }
+
+      .player {
+        position: absolute;
+        font-size: 36px;
+        z-index: 100;
+        transition: all 0.3s;
+        filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+      }
+
+      .hard-mode .player {
+        font-size: 26px;
+      }
+
+      .player-arrow {
+        font-size: 24px;
+        transition: transform 0.3s;
+        filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
+        color: #e74c3c;
+        font-weight: bold;
+      }
+
+      .hard-mode .player-arrow {
+        font-size: 18px;
+      }
+
+      .player-icon {
+        font-size: 36px;
+      }
+
+      .hard-mode .player-icon {
+        font-size: 26px;
+      }
+
+      .destination-marker {
+        position: absolute;
+        top: 0;
+        right: 0;
+        font-size: 40px;
+        animation: pulse 1.5s infinite;
+        z-index: 100;
+        filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+      }
+
+      .hard-mode .destination-marker {
+        font-size: 28px;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.3);
+          opacity: 0.9;
+        }
+      }
+
+      /* 建筑悬停显示英文 */
+      .grid-cell.building {
+        position: relative;
+      }
+
+      .grid-cell.building::after {
+        content: attr(data-name-en);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.85);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s, transform 0.3s;
+        z-index: 1000;
+        margin-bottom: 5px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      .hard-mode .grid-cell.building::after {
+        font-size: 11px;
+        padding: 6px 10px;
+      }
+
+      .grid-cell.building:hover::after {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-5px);
+      }
+
+      /* 红绿灯样式 */
+      .traffic-light {
+        position: absolute;
+        width: 20px;
+        height: 30px;
+        background: #2c3e50;
+        border-radius: 3px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        padding: 2px;
+        z-index: 50;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .hard-mode .traffic-light {
+        width: 15px;
+        height: 22px;
+        padding: 1px;
+      }
+
+      .traffic-light.top {
+        top: 2px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .hard-mode .traffic-light.top {
+        top: 1px;
+      }
+
+      .traffic-light.bottom {
+        bottom: 2px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .hard-mode .traffic-light.bottom {
+        bottom: 1px;
+      }
+
+      .traffic-light.left {
+        left: 2px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .hard-mode .traffic-light.left {
+        left: 1px;
+      }
+
+      .traffic-light.right {
+        right: 2px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .hard-mode .traffic-light.right {
+        right: 1px;
+      }
+
+      .light {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #34495e;
+      }
+
+      .hard-mode .light {
+        width: 4px;
+        height: 4px;
+      }
+
+      .light.red {
+        background: #e74c3c;
+        box-shadow: 0 0 8px #e74c3c;
+      }
+
+      .hard-mode .light.red {
+        box-shadow: 0 0 6px #e74c3c;
+      }
+
+      .light.yellow {
+        background: #f39c12;
+        box-shadow: 0 0 8px #f39c12;
+      }
+
+      .hard-mode .light.yellow {
+        box-shadow: 0 0 6px #f39c12;
+      }
+
+      .light.green {
+        background: #2ecc71;
+        box-shadow: 0 0 8px #2ecc71;
+      }
+
+      .hard-mode .light.green {
+        box-shadow: 0 0 6px #2ecc71;
+      }
+
+      /* 控制面板 */
+      .control-panel {
+        margin-top: 12px;
+      }
+
+      /* 辅助按钮区域 */
+      .auxiliary-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .auxiliary-buttons .action-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: #dfe6e9;
+        color: #2d3436;
+      }
+
+      .auxiliary-buttons .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      /* 游戏控制按钮（移到地图上方） */
+      .game-control-buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        flex-wrap: wrap;
+      }
+
+      .game-control-buttons .action-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .game-control-buttons .action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      }
+
+      .game-control-buttons .action-btn:active {
+        transform: translateY(-1px);
+      }
+
+      /* 内联难度选择器 */
+      .difficulty-selector-inline {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        border: 2px solid #dfe6e9;
+      }
+
+      .difficulty-label {
+        font-size: 14px;
+        font-weight: bold;
+        color: #2d3436;
+        white-space: nowrap;
+      }
+
+      .difficulty-selector-inline .difficulty-btn {
+        padding: 8px 16px;
+        border: 2px solid #dfe6e9;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 12px;
+        font-weight: bold;
+        color: #2d3436;
+      }
+
+      .difficulty-selector-inline .difficulty-btn.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+      }
+
+      .hard-mode .difficulty-selector-inline .difficulty-btn.active {
+        background: #e74c3c;
+        border-color: #e74c3c;
+      }
+
+      .difficulty-selector-inline .difficulty-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .control-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        max-width: 300px;
+        margin: 0 auto;
+      }
+
+      .control-btn {
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .hard-mode .control-btn {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        padding: 15px;
+        font-size: 14px;
+      }
+
+      .control-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+      }
+
+      .hard-mode .control-btn:hover {
+        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+      }
+
+      .control-btn:active {
+        transform: translateY(-1px);
+      }
+
+      .control-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .control-btn .icon {
+        font-size: 24px;
+      }
+
+      .hard-mode .control-btn .icon {
+        font-size: 20px;
+      }
+
+      .control-btn .label {
+        font-size: 14px;
+      }
+
+      .hard-mode .control-btn .label {
+        font-size: 12px;
+      }
+
+      .control-btn.forward {
+        grid-column: 2;
+      }
+
+      /* 游戏模式选择 */
+      .mode-selector {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      .mode-btn {
+        flex: 1;
+        padding: 10px 6px;
+        background: white;
+        border: 2px solid #dfe6e9;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .mode-btn.active {
+        background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+        color: white;
+        border-color: #00b894;
+      }
+
+      .mode-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      /* 底部操作栏 */
+      .game-footer {
+        padding: 20px 30px;
+        background: #f8f9fa;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 15px;
+      }
+
+      .action-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .hard-mode .btn-primary {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      }
+
+      .btn-secondary {
+        background: #dfe6e9;
+        color: #2d3436;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .action-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* 提示信息 */
+      .hint-box {
+        background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 14px;
+      }
+
+      .keyboard-hints {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+        font-size: 12px;
+        opacity: 0.8;
+      }
+
+      .key {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 5px 10px;
+        border-radius: 5px;
+      }
+
+      /* 快捷操作按钮 */
+      .quick-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .quick-actions .action-btn {
+        flex: 1;
+        padding: 10px 6px;
+        border: none;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: #dfe6e9;
+        color: #2d3436;
+      }
+
+      .quick-actions .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      /* 左侧面板内的游戏控制按钮 */
+      .game-control-buttons-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .game-control-buttons-panel .action-btn {
+        padding: 10px 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .game-control-buttons-panel .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      /* 左侧面板内的方向控制按钮 */
+      .panel-card .control-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .panel-card .control-btn {
+        padding: 18px 10px;
+        background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 12px rgba(108, 92, 231, 0.5);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .hard-mode .panel-card .control-btn {
+        background: linear-gradient(135deg, #ff7675 0%, #e74c3c 100%);
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.5);
+      }
+
+      .panel-card .control-btn:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(108, 92, 231, 0.7);
+      }
+
+      .hard-mode .panel-card .control-btn:hover:not(:disabled) {
+        box-shadow: 0 6px 16px rgba(231, 76, 60, 0.7);
+      }
+
+      .panel-card .control-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .panel-card .control-btn .icon {
+        font-size: 28px;
+      }
+
+      .panel-card .control-btn .label {
+        font-size: 13px;
+      }
+
+      .panel-card .control-btn.forward {
+        grid-column: 2;
+      }
+
+      /* Toast提示 */
+      .game-toast {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.85);
+        color: white;
+        padding: 16px 32px;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: bold;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        min-width: 200px;
+      }
+
+      .game-toast.show {
+        opacity: 1;
+      }
+
+      .game-toast.warning {
+        background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+      }
+
+      .game-toast.info {
+        background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+      }
+
+      .game-toast.success {
+        background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+      }
+
+      /* 获胜弹窗样式 */
+      .winner-celebration {
+        text-align: center;
+        padding: 20px;
+      }
+
+      .winner-trophy {
+        font-size: 60px;
+        margin-bottom: 15px;
+        animation: trophy-spin 2s infinite;
+      }
+
+      @keyframes trophy-spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        25% {
+          transform: rotate(10deg);
+        }
+        50% {
+          transform: rotate(0deg);
+        }
+        75% {
+          transform: rotate(-10deg);
+        }
+        100% {
+          transform: rotate(0deg);
+        }
+      }
+
+      .winner-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 15px;
+      }
+
+      .winner-player {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 25px;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        color: white;
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      .winner-icon {
+        font-size: 40px;
+        animation: winner-bounce 1s infinite;
+      }
+
+      @keyframes winner-bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .winner-name {
+        font-size: 28px;
+        font-weight: bold;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .round-stats {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px dashed #dfe6e9;
+      }
+
+      .stat-row:last-child {
+        border-bottom: none;
+      }
+
+      .stat-icon {
+        font-size: 20px;
+        margin-right: 10px;
+      }
+
+      .stat-label {
+        flex: 1;
+        text-align: left;
+        font-size: 14px;
+        color: #636e72;
+      }
+
+      .stat-value {
+        font-weight: bold;
+        color: #667eea;
+        font-size: 16px;
+      }
+
+      .stat-time .stat-value {
+        color: #e74c3c;
+      }
+
+      .score-board-summary {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .score-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #2d3436;
+        margin-bottom: 15px;
+      }
+
+      .scores-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        gap: 15px;
+      }
+
+      .player-score {
+        flex: 1;
+        padding: 15px;
+        border-radius: 12px;
+        background: #f8f9fa;
+        transition: all 0.3s;
+      }
+
+      .player-score.winner-highlight {
+        background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+        color: white;
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(85, 239, 196, 0.5);
+      }
+
+      .player-score.winner-highlight .score-player,
+      .player-score.winner-highlight .wins,
+      .player-score.winner-highlight .points {
+        color: white;
+      }
+
+      .score-player {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #2d3436;
+      }
+
+      .score-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .wins,
+      .points {
+        font-size: 14px;
+        color: #636e72;
+      }
+
+      .score-vs {
+        font-size: 24px;
+        font-weight: bold;
+        color: #e74c3c;
+      }
+
+      /* 响应式设计 */
+      @media (max-width: 1200px) {
+        .game-main {
+          flex-direction: column;
+          padding: 15px;
+        }
+
+        .info-panel {
+          flex: 1 1 auto;
+          max-width: 100%;
+          width: 100%;
+        }
+
+        .map-container {
+          width: 100%;
+        }
+
+        .mission-sidebar {
+          flex: 1 1 auto;
+          max-width: 100%;
+          width: 100%;
+          margin-top: 15px;
+        }
+
+        .map-grid {
+          max-width: 100%;
+        }
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 5px;
+        }
+
+        .game-container {
+          border-radius: 15px;
+          border-width: 3px;
+        }
+
+        .game-header {
+          padding: 15px;
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .game-title {
+          font-size: 20px;
+        }
+
+        .game-stats {
+          gap: 15px;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .stat-value {
+          font-size: 18px;
+        }
+
+        .game-main {
+          padding: 10px;
+          gap: 15px;
+        }
+
+        .info-panel {
+          min-width: 100%;
+        }
+
+        .panel-card {
+          padding: 12px;
+        }
+
+        .map-wrapper {
+          padding: 10px;
+        }
+
+        .game-control-buttons {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .game-control-buttons .action-btn {
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .game-title {
+          font-size: 16px;
+        }
+
+        .stat-item {
+          min-width: 80px;
+        }
+
+        .stat-label {
+          font-size: 10px;
+        }
+
+        .stat-value {
+          font-size: 16px;
+          padding: 3px 10px;
+        }
+
+        .panel-card h3 {
+          font-size: 14px;
+        }
+
+        .destination-name {
+          font-size: 18px;
+        }
+
+        .control-btn .label {
+          font-size: 10px;
+        }
+      }
+
+      /* 成功提示 */
+      .success-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+        color: white;
+        padding: 40px 60px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        z-index: 1000;
+        display: none;
+        animation: slideIn 0.5s;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translate(-50%, -60%);
+        }
+        to {
+          opacity: 1;
+          transform: translate(-50%, -50%);
+        }
+      }
+
+      .success-message h2 {
+        font-size: 36px;
+        margin-bottom: 20px;
+      }
+
+      .success-message p {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+
+      /* 建筑内部视图 */
+      .building-interior {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 2000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .building-interior.active {
+        display: flex;
+      }
+
+      .interior-content {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+        animation: zoomIn 0.3s;
+      }
+
+      @keyframes zoomIn {
+        from {
+          opacity: 0;
+          transform: scale(0.8);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .interior-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #dfe6e9;
+      }
+
+      .interior-icon {
+        font-size: 60px;
+      }
+
+      .interior-title h2 {
+        font-size: 32px;
+        color: #2d3436;
+        margin-bottom: 5px;
+      }
+
+      .interior-title p {
+        font-size: 18px;
+        color: #636e72;
+      }
+
+      .interior-body {
+        margin-bottom: 30px;
+      }
+
+      .interior-description {
+        font-size: 16px;
+        line-height: 1.8;
+        color: #2d3436;
+        margin-bottom: 20px;
+      }
+
+      .interior-items {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .interior-item {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        transition: all 0.3s;
+      }
+
+      .interior-item:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+      }
+
+      .interior-item-icon {
+        font-size: 30px;
+        margin-bottom: 8px;
+      }
+
+      .interior-item-name {
+        font-size: 14px;
+        color: #2d3436;
+        font-weight: bold;
+      }
+
+      .interior-footer {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+      }
+
+      .interior-btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .interior-btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .interior-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: #dfe6e9;
+        border: none;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        font-size: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+      }
+
+      .close-btn:hover {
+        background: #b2bec3;
+        transform: rotate(90deg);
+      }
+
+      /* 宝箱抽奖模态框 */
+      .treasure-box-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 3000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .treasure-box-modal.active {
+        display: flex;
+        animation: fadeIn 0.3s;
+      }
+
+      .treasure-content {
+        text-align: center;
+        padding: 40px;
+        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        border-radius: 30px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        max-width: 500px;
+        animation: bounceIn 0.5s;
+      }
+
+      @keyframes bounceIn {
+        0% {
+          transform: scale(0);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .treasure-chest {
+        width: 200px;
+        height: 150px;
+        margin: 0 auto 30px;
+        position: relative;
+      }
+
+      .chest-top {
+        width: 200px;
+        height: 80px;
+        background: linear-gradient(135deg, #d4a574 0%, #8b6914 100%);
+        border: 4px solid #5d4e37;
+        border-radius: 20px 20px 0 0;
+        position: absolute;
+        top: 0;
+        transition: transform 0.5s;
+        transform-origin: bottom;
+        box-shadow: inset 0 -10px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .chest-top::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 20px;
+        right: 20px;
+        height: 15px;
+        background: linear-gradient(
+          90deg,
+          #8b6914 0%,
+          #d4a574 50%,
+          #8b6914 100%
+        );
+        border-radius: 5px;
+      }
+
+      .treasure-chest.open .chest-top {
+        transform: rotateX(-120deg);
+      }
+
+      .chest-bottom {
+        width: 200px;
+        height: 90px;
+        background: linear-gradient(135deg, #c19a6b 0%, #8b6914 100%);
+        border: 4px solid #5d4e37;
+        border-radius: 0 0 20px 20px;
+        position: absolute;
+        bottom: 0;
+        box-shadow: inset 0 10px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .chest-lock {
+        position: absolute;
+        top: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 30px;
+        z-index: 10;
+        transition: opacity 0.3s;
+      }
+
+      .treasure-chest.open .chest-lock {
+        opacity: 0;
+      }
+
+      .treasure-title {
+        color: #d63031;
+        font-size: 28px;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .treasure-btn {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        font-size: 20px;
+        font-weight: bold;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(238, 90, 111, 0.4);
+        transition: all 0.3s;
+        margin: 10px;
+      }
+
+      .treasure-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(238, 90, 111, 0.6);
+      }
+
+      .treasure-btn-close {
+        background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+      }
+
+      #rewardDisplay {
+        margin: 30px 0;
+        animation: fadeIn 0.5s;
+      }
+
+      .reward-item {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .reward-item.sparkle {
+        animation: sparkle 1s infinite;
+      }
+
+      @keyframes sparkle {
+        0%,
+        100% {
+          box-shadow: 0 10px 30px rgba(255, 215, 0, 0.5);
+        }
+        50% {
+          box-shadow: 0 10px 40px rgba(255, 215, 0, 0.8),
+            0 0 20px rgba(255, 215, 0, 0.6);
+        }
+      }
+
+      .reward-emoji {
+        font-size: 50px;
+        margin-bottom: 15px;
+      }
+
+      .reward-icon {
+        font-size: 80px;
+        margin: 20px 0;
+      }
+
+      .reward-name {
+        font-size: 28px;
+        font-weight: bold;
+        color: #d63031;
+        margin: 15px 0;
+      }
+
+      .reward-congrats {
+        font-size: 18px;
+        color: #636e72;
+        margin-top: 10px;
+      }
+
+      .rewards-left {
+        margin-top: 15px;
+        font-size: 16px;
+        color: #e17055;
+        font-weight: bold;
+      }
+
+      .praise-text {
+        font-size: 32px;
+        font-weight: bold;
+        color: #fd79a8;
+        margin: 20px 0;
+      }
+
+      .praise-note {
+        font-size: 16px;
+        color: #636e72;
+        margin-top: 15px;
+        line-height: 1.6;
+      }
+
+      /* 排行榜 */
+      .leaderboard-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 4000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .leaderboard-modal.active {
+        display: flex;
+        animation: fadeIn 0.3s;
+      }
+
+      .leaderboard-content {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 40px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      .leaderboard-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .leaderboard-header h2 {
+        color: white;
+        font-size: 32px;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .leaderboard-desc {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 16px;
+      }
+
+      .leaderboard-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        justify-content: center;
+      }
+
+      .leaderboard-tab {
+        flex: 1;
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .leaderboard-tab:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .leaderboard-tab.active {
+        background: white;
+        color: #667eea;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      /* 难度筛选选项卡 */
+      .leaderboard-difficulty-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 15px;
+        justify-content: center;
+      }
+
+      .difficulty-filter-tab {
+        flex: 1;
+        padding: 10px 15px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.25);
+        border-radius: 8px;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .difficulty-filter-tab:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+      }
+
+      .difficulty-filter-tab.active {
+        background: rgba(255, 255, 255, 0.95);
+        color: #667eea;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .leaderboard-list {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        min-height: 300px;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .leaderboard-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        margin-bottom: 12px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
+        transition: all 0.3s;
+        border-left: 4px solid #dfe6e9;
+      }
+
+      .leaderboard-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .leaderboard-item.rank-1 {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        border-left-color: #f39c12;
+        font-weight: bold;
+      }
+
+      .leaderboard-item.rank-2 {
+        background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+        border-left-color: #95a5a6;
+      }
+
+      .leaderboard-item.rank-3 {
+        background: linear-gradient(135deg, #cd7f32 0%, #e8a87c 100%);
+        border-left-color: #d35400;
+      }
+
+      .leaderboard-rank {
+        font-size: 24px;
+        font-weight: bold;
+        min-width: 50px;
+        text-align: center;
+        color: #2d3436;
+      }
+
+      .leaderboard-rank.top3 {
+        font-size: 32px;
+      }
+
+      .leaderboard-player {
+        flex: 1;
+        padding: 0 15px;
+      }
+
+      .leaderboard-player-name {
+        font-size: 16px;
+        font-weight: bold;
+        color: #2d3436;
+        margin-bottom: 4px;
+      }
+
+      .leaderboard-player-info {
+        font-size: 12px;
+        color: #636e72;
+      }
+
+      .leaderboard-score {
+        font-size: 20px;
+        font-weight: bold;
+        color: #667eea;
+        min-width: 80px;
+        text-align: right;
+      }
+
+      .leaderboard-item.rank-1 .leaderboard-score {
+        color: #f39c12;
+        font-size: 24px;
+      }
+
+      .leaderboard-empty {
+        text-align: center;
+        padding: 60px 20px;
+        color: #95a5a6;
+        font-size: 16px;
+      }
+
+      .leaderboard-footer {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .leaderboard-clear-btn {
+        background: rgba(231, 76, 60, 0.9);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .leaderboard-clear-btn:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+      }
+
+      /* 管理员面板 */
+      .admin-floating-btn {
+        display: none; /* 隐藏浮动按钮，使用底部按钮 */
+      }
+
+      .admin-panel-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 4000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .admin-panel-modal.active {
+        display: flex;
+      }
+
+      .admin-panel-content {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      .admin-login {
+        text-align: center;
+      }
+
+      .admin-login h2 {
+        color: #667eea;
+        margin-bottom: 20px;
+      }
+
+      .admin-input {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #dfe6e9;
+        border-radius: 10px;
+        font-size: 16px;
+        margin-bottom: 15px;
+        transition: border 0.3s;
+      }
+
+      .admin-input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .admin-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        font-size: 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin: 5px;
+      }
+
+      .admin-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      .admin-btn-danger {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      }
+
+      .admin-btn-success {
+        background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+      }
+
+      .admin-content h2 {
+        color: #2d3436;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .admin-section {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+
+      .admin-section h3 {
+        color: #636e72;
+        margin-bottom: 15px;
+      }
+
+      .reward-input-item {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        align-items: center;
+      }
+
+      .reward-input-item label {
+        min-width: 60px;
+        font-weight: bold;
+        color: #2d3436;
+      }
+
+      .reward-input-item input {
+        padding: 10px;
+        border: 2px solid #dfe6e9;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border 0.3s;
+      }
+
+      .reward-input-item input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .reward-input-item .reward-icon {
+        width: 60px;
+        text-align: center;
+        font-size: 16px;
+      }
+
+      .reward-input-item .reward-name {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-container">
+      <!-- 游戏头部 -->
+      <div class="game-header">
+        <div class="game-title">
+          🎮 Direction Teaching Game 方向指导教学游戏
+          <span class="difficulty-badge" id="difficultyBadge"></span>
+        </div>
+        <div class="game-stats">
+          <div class="stat-item">
+            <div class="stat-label">Score 当前得分</div>
+            <div class="stat-value" id="currentScore">0</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">High Score 最高分</div>
+            <div class="stat-value" id="highScore">0</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Steps 步数</div>
+            <div class="stat-value" id="steps">0</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label" id="timeLabel">Time 时间</div>
+            <div class="stat-value" id="time">0:00</div>
+          </div>
+          <div class="stat-item" id="comboStat" style="display: none">
+            <div class="stat-label">Combo 连击数</div>
+            <div class="stat-value" id="combo">×0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 主游戏区域 -->
+      <div class="game-main">
+        <!-- 左侧信息面板 -->
+        <div class="info-panel">
+          <!-- 当前任务 -->
+          <div class="panel-card">
+            <h3>🎯 <span id="taskTitle">Destination 目标地点</span></h3>
+            <div class="destination-info">
+              <div class="destination-name" id="destinationName">医院</div>
+              <div class="destination-name-en" id="destinationNameEn">
+                Hospital
+              </div>
+              <div
+                class="destination-distance"
+                id="destinationDistance"
+                style="display: none"
+              ></div>
+            </div>
+          </div>
+
+          <!-- 当前方向 -->
+          <div class="panel-card">
+            <h3>🧭 Current Direction 当前方向</h3>
+            <div class="direction-indicator">
+              <div class="direction-arrow" id="directionArrow">⬆️</div>
+              <div class="direction-text" id="directionText">向北 (North)</div>
+            </div>
+          </div>
+
+          <!-- 游戏模式 -->
+          <div class="panel-card">
+            <h3>👥 Game Mode 游戏模式</h3>
+            <div class="mode-selector">
+              <button class="mode-btn active" data-mode="single">
+                Single Player 单人模式
+              </button>
+              <button class="mode-btn" data-mode="double">
+                Two Players 双人模式
+              </button>
+              <button class="mode-btn" data-mode="timed">
+                Timed Mode 计时模式
+              </button>
+            </div>
+          </div>
+
+          <!-- 方向控制 -->
+          <div class="panel-card">
+            <h3>🕹️ Direction Control 方向控制</h3>
+            <div class="control-grid">
+              <button class="control-btn" id="btnTurnLeft" disabled>
+                <span class="icon">↶</span>
+                <span class="label">Turn Left 左转</span>
+              </button>
+              <button class="control-btn forward" id="btnGoStraight" disabled>
+                <span class="icon">⬆️</span>
+                <span class="label">Go Straight 前进</span>
+              </button>
+              <button class="control-btn" id="btnTurnRight" disabled>
+                <span class="icon">↷</span>
+                <span class="label">Turn Right 右转</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 提示信息 -->
+          <div class="hint-box" id="hintBox">
+            Use direction buttons or keyboard arrow keys to control character
+            movement, reach the destination to get points!
+            使用方向按钮或键盘方向键控制角色移动，到达目标地点获得分数！
+            <div class="keyboard-hints">
+              <span class="key">⬅️ Turn Left 左转</span>
+              <span class="key">⬆️ Go Straight 前进</span>
+              <span class="key">➡️ Turn Right 右转</span>
+            </div>
+          </div>
+
+          <!-- 快捷操作按钮 -->
+          <div class="panel-card">
+            <h3>⚙️ Quick Actions 快捷操作</h3>
+            <div class="quick-actions">
+              <button class="action-btn btn-secondary" id="btnLeaderboard">
+                📊 Leaderboard 排行榜
+              </button>
+              <button class="action-btn btn-secondary" id="btnSettings">
+                ⚙️ Settings 设置
+              </button>
+            </div>
+          </div>
+
+          <!-- 障碍物警告 -->
+          <div class="obstacles-alert">
+            ⚠️ Warning 注意：Road has obstacles and one-way streets!
+            道路上有障碍物和单行道！
+          </div>
+        </div>
+
+        <!-- 地图区域 -->
+        <div class="map-container">
+          <div class="map-wrapper">
+            <!-- 游戏控制按钮（移到地图上方） -->
+            <div class="game-control-buttons">
+              <button class="action-btn btn-primary" id="btnStart">
+                🎮 Start Game 开始游戏
+              </button>
+              <button class="action-btn btn-secondary" id="btnRestart" disabled>
+                🔄 Restart 重新开始
+              </button>
+              <button class="action-btn btn-secondary" id="btnPause" disabled>
+                ⏸️ Pause 暂停
+              </button>
+
+              <!-- 难度选择 -->
+              <div class="difficulty-selector-inline">
+                <span class="difficulty-label">⭐ Difficulty 难度:</span>
+                <button class="difficulty-btn active" data-difficulty="easy">
+                  Easy 简单
+                </button>
+                <button class="difficulty-btn" data-difficulty="hard">
+                  Hard 困难
+                </button>
+              </div>
+            </div>
+
+            <div class="map-grid" id="mapGrid"></div>
+          </div>
+        </div>
+
+        <!-- 任务列表侧边栏（困难模式） -->
+        <div class="mission-sidebar" id="missionPanel" style="display: none">
+          <div class="mission-sidebar-header">
+            <h3>📋 Mission List 任务列表</h3>
+            <div class="mission-progress" id="missionProgress">(0/5)</div>
+          </div>
+          <div class="mission-list" id="missionList"></div>
+        </div>
+      </div>
+
+      <!-- 游戏底部 -->
+      <div class="game-footer">
+        <div class="action-buttons">
+          <button
+            class="action-btn btn-secondary"
+            id="btnHint"
+            style="display: none"
+          >
+            💡 Hint 提示
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 成功提示 -->
+    <div class="success-message" id="successMessage">
+      <h2>🎉 Great! 太棒了！</h2>
+      <p id="successText">You reached the destination! 你成功到达目标地点！</p>
+      <p id="successStats"></p>
+    </div>
+
+    <!-- 建筑内部视图 -->
+    <div class="building-interior" id="buildingInterior">
+      <div class="interior-content">
+        <button class="close-btn" id="closeInterior">×</button>
+
+        <div class="interior-header">
+          <div class="interior-icon" id="interiorIcon">🏥</div>
+          <div class="interior-title">
+            <h2 id="interiorName">医院</h2>
+            <p id="interiorNameEn">Hospital</p>
+          </div>
+        </div>
+
+        <div class="interior-body">
+          <div class="interior-description" id="interiorDescription">
+            欢迎来到医院！这里提供专业的医疗服务。
+          </div>
+
+          <div class="interior-items" id="interiorItems">
+            <!-- 动态生成建筑内部物品 -->
+          </div>
+        </div>
+
+        <div class="interior-footer">
+          <button
+            class="interior-btn interior-btn-primary"
+            id="btnExitBuilding"
+          >
+            🚺 Exit Building 离开建筑
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 宝箱抽奖 -->
+    <div class="treasure-box-modal" id="treasureBox">
+      <div class="treasure-content">
+        <div class="treasure-chest">
+          <div class="chest-top"></div>
+          <div class="chest-bottom"></div>
+          <div class="chest-lock">🔒</div>
+        </div>
+        <h2 class="treasure-title">
+          🎉 Congratulations! You found a treasure chest! 恭喜你找到宝箱！
+        </h2>
+        <button class="treasure-btn" id="openTreasure">
+          ✨ Open Chest 打开宝箱 ✨
+        </button>
+        <div id="rewardDisplay" style="display: none"></div>
+        <button
+          class="treasure-btn treasure-btn-close"
+          id="closeTreasure"
+          style="display: none"
+        >
+          🚪 继续冒险
+        </button>
+      </div>
+    </div>
+
+    <!-- 排行榜 -->
+    <div class="leaderboard-modal" id="leaderboardModal">
+      <div class="leaderboard-content">
+        <button class="close-btn" id="closeLeaderboard">×</button>
+
+        <div class="leaderboard-header">
+          <h2>🏆 Leaderboard 排行榜</h2>
+          <p class="leaderboard-desc">Top Players 最佳玩家</p>
+        </div>
+
+        <div class="leaderboard-tabs">
+          <button class="leaderboard-tab active" data-tab="all">
+            🌐 All Time 全部
+          </button>
+          <button class="leaderboard-tab" data-tab="today">
+            📅 Today 今日
+          </button>
+        </div>
+
+        <div class="leaderboard-difficulty-tabs">
+          <button class="difficulty-filter-tab active" data-difficulty="all">
+            🌟 All 全部
+          </button>
+          <button class="difficulty-filter-tab" data-difficulty="easy">
+            ⭐ Easy 简单
+          </button>
+          <button class="difficulty-filter-tab" data-difficulty="hard">
+            🔥 Hard 困难
+          </button>
+        </div>
+
+        <div class="leaderboard-list" id="leaderboardList">
+          <!-- 动态生成排行榜内容 -->
+        </div>
+
+        <div class="leaderboard-footer">
+          <button class="leaderboard-clear-btn" id="clearLeaderboard">
+            🗑️ Clear All Data 清空数据
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 管理员配置面板 -->
+    <div class="admin-panel-modal" id="adminPanel">
+      <div class="admin-panel-content">
+        <button class="close-btn" id="closeAdmin">×</button>
+
+        <div class="admin-login">
+          <h2>🔐 Admin Login 管理员登录</h2>
+          <input
+            type="password"
+            id="adminPassword"
+            placeholder="Please enter password 请输入密码"
+            class="admin-input"
+          />
+          <button class="admin-btn" id="adminLogin">Login 登录</button>
+        </div>
+
+        <div class="admin-content" id="adminContent" style="display: none">
+          <h2>🎮 Treasure Lottery Settings 宝箱抽奖配置</h2>
+
+          <div class="admin-section">
+            <h3>
+              🎁 Rewards Left Today 今日剩余奖励：<span id="rewardsLeftCount"
+                >3</span
+              >
+              Times 次
+            </h3>
+            <button class="admin-btn admin-btn-danger" id="resetRewards">
+              🔄 Reset Daily Rewards 重置今日奖励
+            </button>
+          </div>
+
+          <div class="admin-section">
+            <h3>🎯 Reward Settings 奖励配置</h3>
+            <div id="rewardInputs"></div>
+            <button class="admin-btn admin-btn-success" id="saveRewards">
+              💾 Save Settings 保存配置
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 管理员入口按钮 -->
+    <button class="admin-floating-btn" id="adminBtn" title="管理员">
+      设置⚙️
+    </button>
+
+    <script src="index.js"></script>
+  </body>
+</html>
+/
