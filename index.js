@@ -379,6 +379,12 @@ class Game {
     }
 
     setupEventListeners() {
+        // 检查是否在僵尸模式页面
+        const isZombieMode = document.title && document.title.includes('僵尸模式');
+        
+        // 如果在僵尸模式页面，不绑定按钮事件（由僵尸模式自己处理）
+        if (isZombieMode) return;
+
         // 难度选择
         document.querySelectorAll('.difficulty-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -470,14 +476,17 @@ class Game {
             switch(e.key) {
                 case 'ArrowLeft':
                     e.preventDefault();
+                    e.stopPropagation();
                     this.turnLeft();
                     break;
                 case 'ArrowUp':
                     e.preventDefault();
+                    e.stopPropagation();
                     this.goStraight();
                     break;
                 case 'ArrowRight':
                     e.preventDefault();
+                    e.stopPropagation();
                     this.turnRight();
                     break;
             }
@@ -486,6 +495,12 @@ class Game {
 
     changeDifficulty(difficulty) {
         if (this.isGameStarted) return;
+        
+        if (difficulty === 'zombie') {
+            // 跳转到僵尸模式页面
+            window.location.href = 'zombie-mode.html';
+            return;
+        }
         
         this.difficulty = difficulty;
         this.gridSize = difficulty === 'easy' ? 8 : 12;
@@ -2164,6 +2179,17 @@ class Game {
 
 // 初始化游戏
 const game = new Game();
+
+// 绑定僵尸模式按钮事件
+document.addEventListener('DOMContentLoaded', function() {
+    const btnZombieMode = document.getElementById('btnZombieMode');
+    if (btnZombieMode) {
+        btnZombieMode.addEventListener('click', function() {
+            // 跳转到僵尸模式页面
+            window.location.href = 'ui-prototype-zombie.html';
+        });
+    }
+});
 
 
 // 反馈用户名单（可维护）
