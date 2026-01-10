@@ -121,6 +121,7 @@ class ZombieGame {
         this.timer = null;
         this.isGameStarted = false;
         this.isPaused = false;
+        this.isMusicPlaying = false;
         this.zombies = [];
         this.missions = [];
         this.currentMissionIndex = 0;
@@ -137,8 +138,12 @@ class ZombieGame {
     setupEventListeners() {
         // 返回主游戏按钮
         document.getElementById('btnBackToMain').addEventListener('click', () => {
+            this.stopBackgroundMusic();
             window.location.href = 'index.html';
         });
+        
+        // 音乐控制按钮
+        document.getElementById('btnToggleMusic').addEventListener('click', () => this.toggleMusic());
         
         // 游戏控制按钮
         document.getElementById('btnStart').addEventListener('click', () => this.startGame());
@@ -300,11 +305,11 @@ class ZombieGame {
         });
         
         // 添加障碍物
-        map[4][5] = { type: 'obstacle' };
+        // map[4][5] = { type: 'obstacle' };
         map[5][4] = { type: 'obstacle' };
-        map[2][4] = { type: 'obstacle' };
-        map[3][7] = { type: 'obstacle' };
-        map[6][2] = { type: 'obstacle' };
+        // map[2][4] = { type: 'obstacle' };
+        // map[3][7] = { type: 'obstacle' };
+        // map[6][2] = { type: 'obstacle' };
         map[9][8] = { type: 'obstacle' };
         
         return map;
@@ -342,6 +347,42 @@ class ZombieGame {
         
         // 启动计时器
         this.startTimer();
+        
+        // 播放背景音乐
+        this.playBackgroundMusic();
+    }
+    
+    // 播放背景音乐
+    playBackgroundMusic() {
+        const music = document.getElementById('zombieBackgroundMusic');
+        if (music) {
+            music.volume = 0.3; // 设置音量为30%
+            music.play().catch(error => {
+                console.log('背景音乐播放失败:', error);
+            });
+            this.isMusicPlaying = true;
+        }
+    }
+    
+    // 停止背景音乐
+    stopBackgroundMusic() {
+        const music = document.getElementById('zombieBackgroundMusic');
+        if (music) {
+            music.pause();
+            music.currentTime = 0;
+        }
+        this.isMusicPlaying = false;
+    }
+    
+    // 切换音乐状态
+    toggleMusic() {
+        if (this.isMusicPlaying) {
+            this.stopBackgroundMusic();
+            document.getElementById('btnToggleMusic').textContent = '🔊 开启音乐 Turn On Music';
+        } else {
+            this.playBackgroundMusic();
+            document.getElementById('btnToggleMusic').textContent = '🔇 关闭音乐 Turn Off Music';
+        }
     }
 
     initMissions() {
@@ -569,6 +610,17 @@ class ZombieGame {
                 this.updateHealthBar();
                 this.showMessage('💀 被僵尸攻击了！生命值减少20点！ Attacked by zombie! Health reduced by 20!', 'warning');
                 
+                // 添加页面抖动效果
+                const gameContainer = document.querySelector('.game-container');
+                if (gameContainer) {
+                    gameContainer.classList.add('shake-screen');
+                    
+                    // 动画结束后移除类，以便下次可以再次触发抖动
+                    setTimeout(() => {
+                        gameContainer.classList.remove('shake-screen');
+                    }, 500); // 与CSS动画时间一致
+                }
+                
                 // 检查是否游戏结束
                 if (this.playerHealth <= 0) {
                     this.gameOver();
@@ -736,6 +788,9 @@ class ZombieGame {
         
         this.showMessage(`🏆 恭喜！你完成了所有任务！最终得分：${this.score}`, 'success');
         
+        // 停止背景音乐
+        this.stopBackgroundMusic();
+        
         this.isGameStarted = false;
         document.getElementById('btnStart').disabled = false;
         document.getElementById('btnRestart').disabled = true;
@@ -759,6 +814,9 @@ class ZombieGame {
         
         document.getElementById('gameOverModal').classList.add('active');
         
+        // 停止背景音乐
+        this.stopBackgroundMusic();
+        
         this.isGameStarted = false;
         document.getElementById('btnStart').disabled = false;
         document.getElementById('btnRestart').disabled = true;
@@ -775,6 +833,12 @@ class ZombieGame {
         
         // 隐藏游戏结束弹窗
         document.getElementById('gameOverModal').classList.remove('active');
+        
+        // 停止背景音乐
+        this.stopBackgroundMusic();
+        
+        // 重置音乐按钮文本
+        document.getElementById('btnToggleMusic').textContent = '🔊 开启音乐 Turn On Music';
         
         // 重置按钮状态
         document.getElementById('btnStart').disabled = false;
