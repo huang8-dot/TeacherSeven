@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <title>Direction Teaching Game - Zombie Mode 方向指导教学游戏 - 僵尸模式</title> -->
+   <p></p>
+   <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', '微软雅黑', sans-serif;
+            background: linear-gradient(
+                135deg,
+                #2c3e50 0%,
+                #34495e 50%,
+                #2c3e50 100%
+            );
+            min-height: 100vh;
+            padding: 10px;
+            color: white;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(
+                    circle,
+                    rgba(255, 255, 255, 0.1) 1px,
+                    transparent 1px
+                ),
+                radial-gradient(circle, rgba(255, 0, 0, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px, 80px 80px;
+            background-position: 0 0, 40px 40px;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(-50px, -50px);
+            }
+        }
+
+        .game-container {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 25px 80px rgba(255, 0, 0, 0.3),
+                0 0 50px rgba(0, 0, 0, 0.5);
+            max-width: 1600px;
+            width: 100%;
+            margin: 0 auto;
+            overflow: visible;
+            position: relative;
+            z-index: 1;
+            border: 5px solid rgba(255, 0, 0, 0.5);
+        }
+
+        /* 顶部区域 */
+        .game-header {
+            background: linear-gradient(
+                135deg,
+                #c0392b 0%,
+                #e74c3c 50%,
+                #c0392b 100%
+            );
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .game-title {
+            font-size: 28px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .difficulty-badge {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            animation: pulse-badge 2s infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 10px;
+        }
+
+        /* 生命值显示 */
+        .health-bar-container {
+            width: 120px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .health-bar {
+            height: 100%;
+            background: linear-gradient(to right, #e74c3c, #f39c12);
+            width: 100%;
+            transition: width 0.3s ease;
+        }
+
+        /* 主游戏区域 */
+        .game-main {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            flex-wrap: wrap;
+            min-height: auto;
+        }
+
+        /* 左侧信息面板 */
+        .info-panel {
+            flex: 0 0 240px;
+            min-width: 240px;
+            max-width: 240px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .panel-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-card h3 {
+            color: #e74c3c;
+            margin-bottom: 12px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .destination-info {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            color: #2d3436;
+        }
+
+        .destination-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .destination-name-en {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .destination-distance {
+            font-size: 12px;
+            color: #e74c3c;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .direction-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .direction-arrow {
+            font-size: 32px;
+            color: #e74c3c;
+            transition: transform 0.3s;
+        }
+
+        .direction-text {
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* 任务列表 */
+        .mission-list {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .mission-item {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .mission-item.active {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            font-weight: bold;
+            color: #2d3436;
+        }
+
+        .mission-item.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        /* 地图区域 */
+        .map-container {
+            flex: 1 1 auto;
+            min-width: 300px;
+            max-width: 100%;
+        }
+
+        .map-wrapper {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .map-grid {
+            display: grid;
+            gap: 2px;
+            background: #2c3e50;
+            border: 3px solid #e74c3c;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            aspect-ratio: 1;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: repeat(12, 1fr);
+            /* 确保地图格子有最小尺寸，防止在小屏幕上变得太小 */
+            min-width: 300px;
+            min-height: 300px;
+        }
+
+        /* 右侧任务侧边栏 */
+        .mission-sidebar {
+            flex: 0 0 260px;
+            min-width: 260px;
+            max-width: 260px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .mission-sidebar-header {
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+
+        .mission-sidebar-header h3 {
+            color: #e74c3c;
+            margin: 0 0 8px 0;
+            font-size: 18px;
+        }
+
+        .mission-progress {
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .mission-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .mission-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid rgba(255, 255, 255, 0.3);
+            font-size: 13px;
+            line-height: 1.5;
+            transition: all 0.3s;
+        }
+
+        .mission-item.active {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-left-color: #f39c12;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+            color: #2d3436;
+        }
+
+        .mission-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+            border-left-color: #00b894;
+            opacity: 0.7;
+            text-decoration: line-through;
+        }
+
+        .mission-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 地图格子样式 */
+        .grid-cell {
+            background: #ecf0f1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            transition: all 0.3s;
+        }
+
+        .grid-cell.road {
+            background: #95a5a6;
+            position: relative;
+        }
+
+        .grid-cell.road::after {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 2px;
+            background: repeating-linear-gradient(
+                to right,
+                #f1c40f 0px,
+                #f1c40f 8px,
+                transparent 8px,
+                transparent 16px
+            );
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .grid-cell.road-vertical::after {
+            width: 2px;
+            height: 80%;
+            background: repeating-linear-gradient(
+                to bottom,
+                #f1c40f 0px,
+                #f1c40f 8px,
+                transparent 8px,
+                transparent 16px
+            );
+        }
+
+        .grid-cell.road-intersection::after {
+            content: none;
+        }
+
+        .grid-cell.road-intersection {
+            background: #7f8c8d;
+        }
+
+        .grid-cell.building {
+            background: #74b9ff;
+            cursor: pointer;
+        }
+
+        .grid-cell.building:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .grid-cell.obstacle {
+            background: #636e72;
+        }
+
+        .obstacle-icon {
+            font-size: 16px;
+        }
+
+        .grid-cell.oneway::before {
+            content: '→';
+            position: absolute;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 5;
+        }
+
+        .grid-cell.oneway-up::before {
+            content: '↑';
+        }
+
+        .grid-cell.oneway-down::before {
+            content: '↓';
+        }
+
+        .grid-cell.oneway-left::before {
+            content: '←';
+        }
+
+        .building-icon {
+            font-size: 22px;
+        }
+
+        .building-label {
+            position: absolute;
+            bottom: 1px;
+            font-size: 7px;
+            color: #2d3436;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 1px 2px;
+            border-radius: 2px;
+        }
+
+        /* 玩家样式 */
+        .player {
+            position: absolute;
+            font-size: 26px;
+            z-index: 100;
+            transition: all 0.3s;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .player-arrow {
+            font-size: 18px;
+            transition: transform 0.3s;
+            filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .player-icon {
+            font-size: 26px;
+        }
+
+        /* 目标标记 */
+        .destination-marker {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 28px;
+            animation: pulse 1.5s infinite;
+            z-index: 100;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.9;
+            }
+        }
+
+        /* 僵尸样式 */
+        .zombie {
+            position: absolute;
+            font-size: 24px;
+            z-index: 90;
+            transition: all 0.3s;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+            animation: zombie-walk 1s infinite alternate;
+        }
+
+        @keyframes zombie-walk {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-2px);
+            }
+        }
+
+        /* 建筑悬停显示英文 */
+        .grid-cell.building {
+            position: relative;
+        }
+
+        .grid-cell.building::after {
+            content: attr(data-name-en);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 1000;
+            margin-bottom: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .grid-cell.building:hover::after {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+
+        /* 红绿灯样式 */
+        .traffic-light {
+            position: absolute;
+            width: 15px;
+            height: 22px;
+            background: #2c3e50;
+            border-radius: 3px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            padding: 1px;
+            z-index: 50;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .traffic-light.top {
+            top: 1px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .traffic-light.bottom {
+            bottom: 1px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .traffic-light.left {
+            left: 1px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .traffic-light.right {
+            right: 1px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .light {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #34495e;
+        }
+
+        .light.red {
+            background: #e74c3c;
+            box-shadow: 0 0 6px #e74c3c;
+        }
+
+        .light.yellow {
+            background: #f39c12;
+            box-shadow: 0 0 6px #f39c12;
+        }
+
+        .light.green {
+            background: #2ecc71;
+            box-shadow: 0 0 6px #2ecc71;
+        }
+
+        /* 游戏控制按钮 */
+        .game-control-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+
+        .game-control-buttons .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .game-control-buttons .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .game-control-buttons .action-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* 方向控制按钮 */
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .control-btn {
+            padding: 15px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+        }
+
+        .control-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .control-btn .icon {
+            font-size: 20px;
+        }
+
+        .control-btn .label {
+            font-size: 12px;
+        }
+
+        .control-btn.forward {
+            grid-column: 2;
+        }
+
+        /* 底部操作栏 */
+        .game-footer {
+            padding: 20px 30px;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Toast提示 */
+        .game-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            min-width: 200px;
+        }
+
+        .game-toast.show {
+            opacity: 1;
+        }
+
+        .game-toast.warning {
+            background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+        }
+
+        .game-toast.info {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+        }
+
+        .game-toast.success {
+            background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+        }
+
+        /* 游戏结束弹窗 */
+        .game-over-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-over-modal.active {
+            display: flex;
+        }
+
+        .game-over-content {
+            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(255, 0, 0, 0.5);
+        }
+
+        .game-over-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-over-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .game-over-stats {
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+
+        .game-over-stats div {
+            margin-bottom: 10px;
+        }
+
+        /* 响应式优化 */
+        @media (max-width: 1200px) {
+            .game-main {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .info-panel {
+                flex: 1 1 auto;
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .map-container {
+                width: 100%;
+            }
+
+            .mission-sidebar {
+                flex: 1 1 auto;
+                max-width: 100%;
+                width: 100%;
+                margin-top: 15px;
+            }
+
+            .map-grid {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+                overflow-x: hidden;
+            }
+
+            .game-container {
+                border-radius: 15px;
+                border-width: 3px;
+                overflow: hidden;
+            }
+
+            .game-header {
+                padding: 15px;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .game-title {
+                font-size: 20px;
+            }
+
+            .game-stats {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .game-main {
+                padding: 10px;
+                gap: 15px;
+                flex-direction: column;
+            }
+
+            /* 确保地图容器在小屏幕上自适应 */
+            .map-container {
+                width: 100%;
+                min-width: auto;
+                max-width: 100%;
+                overflow-x: auto;
+            }
+
+            .map-wrapper {
+                padding: 10px;
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .map-grid {
+                max-width: 100%;
+                min-width: auto;
+                overflow-x: auto;
+            }
+
+            /* 确保方向控制按钮始终可见且合适大小 */
+            .control-grid {
+                max-width: 100%;
+                width: 100%;
+                min-width: 250px;
+                gap: 8px;
+                margin: 0 auto;
+            }
+
+            .control-btn {
+                padding: 12px 8px;
+                min-height: 70px;
+                font-size: 12px;
+            }
+
+            /* 优化面板卡片布局，确保方向控制不被隐藏 */
+            .info-panel {
+                order: 2;
+            }
+
+            .map-container {
+                order: 1;
+            }
+
+            .mission-sidebar {
+                order: 3;
+            }
+
+            .info-panel {
+                min-width: 100%;
+            }
+
+            .panel-card {
+                padding: 12px;
+            }
+
+            .map-wrapper {
+                padding: 10px;
+            }
+
+            .game-control-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .game-control-buttons .action-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-title {
+                font-size: 16px;
+            }
+
+            .stat-item {
+                min-width: 80px;
+            }
+
+            .stat-label {
+                font-size: 10px;
+            }
+
+            .stat-value {
+                font-size: 16px;
+                padding: 3px 10px;
+            }
+
+            .panel-card h3 {
+                font-size: 14px;
+            }
+
+            .destination-name {
+                font-size: 18px;
+            }
+
+            /* 确保方向控制按钮在极小屏幕上也有合适的大小 */
+            .control-btn {
+                padding: 10px 6px;
+                min-height: 60px;
+                font-size: 11px;
+            }
+
+            .control-btn .label {
+                font-size: 10px;
+                line-height: 1.2;
+            }
+
+            .control-btn .icon {
+                font-size: 20px;
+                margin-bottom: 2px;
+            }
+
+            /* 确保地图容器在极小屏幕上可滚动且完整显示 */
+            .map-container {
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .map-wrapper {
+                padding: 5px;
+                width: auto;
+                min-width: 300px;
+            }
+
+            .map-grid {
+                width: 100%;
+                min-width: 300px;
+            }
+
+            /* 确保方向控制网格始终可见且不被挤压 */
+            .control-grid {
+                min-width: 220px;
+                gap: 6px;
+            }
+
+            /* 优化面板卡片的内边距，节省空间 */
+            .panel-card {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- 游戏头部 -->
+        <div class="game-header">
+            <div class="game-title">
+                🧟 Direction Teaching Game - Zombie Mode 方向指导教学游戏 - 僵尸模式
+            </div>
+            <button id="btnBackToMain" class="action-btn">🏠 返回主游戏 Return to Main Game</button>
+            <div class="game-stats">
+                <div class="stat-item">
+                    <span class="stat-label">分数 Score</span>
+                    <span id="currentScore" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">步数 Steps</span>
+                    <span id="steps" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">时间 Time</span>
+                    <span id="time" class="stat-value">0:00</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">生命值 Health</span>
+                    <div id="healthBar" class="health-bar-container">
+                        <div id="healthBarFill" class="health-bar"></div>
+                    </div>
+                    <span id="healthValue" class="stat-value">100</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏主区域 -->
+        <div class="game-main">
+            <!-- 左侧信息面板 -->
+            <div class="info-panel">
+                <!-- 目标信息 -->
+                <div class="panel-card">
+                    <h3>🎯 目标地点 Destination</h3>
+                    <div class="destination-info">
+                        <div id="destinationName" class="destination-name">未选择 Not Selected</div>
+                        <div id="destinationNameEn" class="destination-name-en"></div>
+                        <div id="destinationDistance" class="destination-distance" style="display: block;"></div>
+                    </div>
+                </div>
+
+                <!-- 方向指示 -->
+                <div class="panel-card">
+                    <h3>🧭 当前方向 Current Direction</h3>
+                    <div class="direction-indicator">
+                        <div id="directionArrow" class="direction-arrow">⬆️</div>
+                        <div id="directionText" class="direction-text">向北 North</div>
+                    </div>
+                </div>
+
+                <!-- 方向控制 -->
+                <div class="panel-card">
+                    <h3>🎮 方向控制 Direction Control</h3>
+                    <div class="control-grid">
+                        <button id="btnTurnLeft" class="control-btn" disabled>
+                            <div class="icon">⬅️</div>
+                            <div class="label">左转 Turn Left</div>
+                        </button>
+                        <button id="btnGoStraight" class="control-btn forward" disabled>
+                            <div class="icon">⬆️</div>
+                            <div class="label">前进 Go Straight</div>
+                        </button>
+                        <button id="btnTurnRight" class="control-btn" disabled>
+                            <div class="icon">➡️</div>
+                            <div class="label">右转 Turn Right</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 游戏控制 -->
+                <div class="panel-card">
+                    <h3>🎮 游戏控制 Game Control</h3>
+                    <div class="game-control-buttons-panel">
+                        <button id="btnStart" class="action-btn btn-primary">▶️ 开始游戏 Start Game</button>
+                        <button id="btnRestart" class="action-btn btn-secondary" disabled>🔄 重新开始 Restart</button>
+                        <button id="btnPause" class="action-btn btn-secondary" disabled>⏸️ 暂停 Pause</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 地图区域 -->
+            <div class="map-container">
+                <div class="map-wrapper">
+                    <div id="mapGrid" class="map-grid"></div>
+                </div>
+            </div>
+
+            <!-- 右侧任务列表 -->
+            <div class="mission-sidebar">
+                <div class="mission-sidebar-header">
+                    <h3>📋 任务列表 Mission List</h3>
+                    <div id="missionProgress" class="mission-progress">(0/5)</div>
+                </div>
+                <div id="missionList" class="mission-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏结束弹窗 -->
+    <div id="gameOverModal" class="game-over-modal">
+        <div class="game-over-content">
+            <div class="game-over-icon">💀</div>
+            <div class="game-over-title">游戏结束 Game Over</div>
+            <div class="game-over-stats">
+                <div>最终分数: <span id="finalScore">0</span> Final Score</div>
+                <div>完成任务: <span id="finalMissions">0/5</span> Completed Missions</div>
+                <div>总用时: <span id="finalTime">0:00</span> Total Time</div>
+                <div>总步数: <span id="finalSteps">0</span> Total Steps</div>
+            </div>
+            <button id="btnRestartGame" class="action-btn">🔄 重新开始 Restart</button>
+        </div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div id="gameToast" class="game-toast"></div>
+
+    <script src="zombie-mode.js"></script>
+</body>
+</html>

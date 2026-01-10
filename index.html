@@ -797,13 +797,14 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 12px;
+        gap: 8px;
         margin-bottom: 12px;
-        padding: 10px;
+        padding: 8px;
         background: rgba(255, 255, 255, 0.9);
         border-radius: 12px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        overflow-x: auto;
       }
 
       .game-control-buttons .action-btn {
@@ -815,6 +816,18 @@
         cursor: pointer;
         transition: all 0.3s;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      /* 紧凑型按钮样式 */
+      .compact-btn {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+        min-width: auto !important;
+      }
+
+      .compact-difficulty-btn {
+        padding: 6px 10px !important;
+        font-size: 11px !important;
       }
 
       .game-control-buttons .action-btn:hover {
@@ -830,15 +843,15 @@
       .difficulty-selector-inline {
         display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 8px 16px;
+        gap: 6px;
+        padding: 6px 12px;
         background: rgba(255, 255, 255, 0.9);
-        border-radius: 10px;
-        border: 2px solid #dfe6e9;
+        border-radius: 8px;
+        border: 1px solid #dfe6e9;
       }
 
       .difficulty-label {
-        font-size: 14px;
+        font-size: 12px;
         font-weight: bold;
         color: #2d3436;
         white-space: nowrap;
@@ -2518,26 +2531,54 @@
           <div class="map-wrapper">
             <!-- 游戏控制按钮（移到地图上方） -->
             <div class="game-control-buttons">
-              <button class="action-btn btn-primary" id="btnStart">
+              <button class="action-btn btn-primary compact-btn" id="btnStart">
                 🎮 Start Game 开始游戏
               </button>
-              <button class="action-btn btn-secondary" id="btnRestart" disabled>
+              <button
+                class="action-btn btn-secondary compact-btn"
+                id="btnRestart"
+                disabled
+              >
                 🔄 Restart 重新开始
               </button>
-              <button class="action-btn btn-secondary" id="btnPause" disabled>
+              <button
+                class="action-btn btn-secondary compact-btn"
+                id="btnPause"
+                disabled
+              >
                 ⏸️ Pause 暂停
               </button>
 
               <!-- 难度选择 -->
               <div class="difficulty-selector-inline">
                 <span class="difficulty-label">⭐ Difficulty 难度:</span>
-                <button class="difficulty-btn active" data-difficulty="easy">
+                <button
+                  class="difficulty-btn compact-difficulty-btn active"
+                  data-difficulty="easy"
+                >
                   Easy 简单
                 </button>
-                <button class="difficulty-btn" data-difficulty="hard">
+                <button
+                  class="difficulty-btn compact-difficulty-btn"
+                  data-difficulty="hard"
+                >
                   Hard 困难
                 </button>
+                <button
+                  class="difficulty-btn compact-difficulty-btn"
+                  data-difficulty="zombie"
+                >
+                  🧟 Zombie 僵尸
+                </button>
               </div>
+
+              <!-- 僵尸模式按钮 -->
+              <!-- <button
+                class="action-btn btn-secondary compact-btn"
+                onclick="window.location.href='ui-prototype-zombie.html'"
+              >
+                🧟‍♂️ Zombie 僵尸模式
+              </button> -->
             </div>
 
             <div class="map-grid" id="mapGrid"></div>
@@ -2557,13 +2598,16 @@
       <!-- 游戏底部 -->
       <div class="game-footer">
         <div class="action-buttons">
-          <button
-            class="action-btn btn-secondary"
-            id="btnHint"
-            style="display: none"
-          >
-            💡 Hint 提示
-          </button>
+          <button class="action-btn btn-primary" id="btnStart">🎮 开始游戏</button>
+          <button class="action-btn btn-secondary" id="btnRestart" disabled>🔄 重新开始</button>
+          <button class="action-btn btn-secondary" id="btnPause" disabled>⏸️ 暂停</button>
+        </div>
+        <div class="action-buttons">
+          <button class="action-btn btn-secondary" id="btnLeaderboard">📊 查看排行榜</button>
+          <button class="action-btn btn-secondary" id="btnHint">💡 提示</button>
+          <button class="action-btn btn-secondary" id="btnSettings">⚙️ 设置</button>
+          <button class="action-btn btn-secondary" id="btnZombieMode">🧟‍♂️ 僵尸模式</button>
+          <button class="action-btn btn-secondary" onclick="window.location.href='ui-prototype.html'">🎨 UI原型</button>
         </div>
         <div class="marquee" aria-label="特别感谢名单">
           <div class="marquee-track">
