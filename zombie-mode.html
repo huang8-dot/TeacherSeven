@@ -887,6 +887,12 @@
             .map-grid {
                 max-width: 100%;
             }
+            
+            /* 在平板设备（包括iPad）上隐藏目标地点和当前方向区域 */
+            .info-panel .panel-card:nth-child(1), /* 目标地点 */
+            .info-panel .panel-card:nth-child(2)  /* 当前方向 */ {
+                display: none;
+            }
         }
 
         @media (max-width: 768px) {
@@ -967,6 +973,12 @@
                 order: 1;
             }
 
+            /* 在手机设备上隐藏目标地点和当前方向区域 */
+            .info-panel .panel-card:nth-child(1), /* 目标地点 */
+            .info-panel .panel-card:nth-child(2)  /* 当前方向 */ {
+                display: none;
+            }
+
             .mission-sidebar {
                 order: 3;
             }
@@ -996,6 +1008,12 @@
         @media (max-width: 480px) {
             .game-title {
                 font-size: 16px;
+            }
+            
+            /* 确保在极小屏幕上也隐藏目标地点和当前方向区域 */
+            .info-panel .panel-card:nth-child(1), /* 目标地点 */
+            .info-panel .panel-card:nth-child(2)  /* 当前方向 */ {
+                display: none;
             }
 
             .stat-item {
@@ -1078,8 +1096,8 @@
     <div class="game-container">
         <!-- 游戏头部 -->
         <div class="game-header">
-            <!-- 版本 version7.1 -->
-            <div class="version-info" style="position: absolute; top: 10px; right: 30px; font-size: 14px; color: rgba(255, 255, 255, 0.8); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);">version7.1</div>
+            <!-- 版本 version7.2 -->
+            <div class="version-info" style="position: absolute; top: 10px; right: 30px; font-size: 14px; color: rgba(255, 255, 255, 0.8); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);">version7.2</div>
             <div class="game-title">
                 🧟 Direction Teaching Game - Zombie Mode 方向指导教学游戏 - 僵尸模式
             </div>
