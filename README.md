@@ -1,2 +1,2 @@
-# TeacherSix
-第6版本,增加了红绿灯
+# TeacherSeven
+第7版本,增加了僵尸模式
