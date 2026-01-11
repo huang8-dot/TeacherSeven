@@ -46,12 +46,13 @@ class Zombie {
         this.pos = { row, col };
         this.icon = '🧟';
         this.direction = Math.floor(Math.random() * 4);
+        this.isChasing = true; // 默认开启追击
     }
 
     // 僵尸移动逻辑
     move(map, playerPos, gridSize) {
-        // 检查是否接近玩家（3格内），如果是则追踪玩家
-        if (Math.abs(this.pos.row - playerPos.row) <= 3 && Math.abs(this.pos.col - playerPos.col) <= 3) {
+        // 检查是否接近玩家（3格内），如果是且允许追击，则追踪玩家
+        if (this.isChasing && Math.abs(this.pos.row - playerPos.row) <= 3 && Math.abs(this.pos.col - playerPos.col) <= 3) {
             this.chasePlayer(playerPos);
         } else {
             // 随机移动
@@ -101,6 +102,16 @@ class Zombie {
                 break;
         }
     }
+    
+    // 设置追击状态
+    setChasing(chasing) {
+        this.isChasing = chasing;
+    }
+    
+    // 获取追击状态
+    getChasing() {
+        return this.isChasing;
+    }
 }
 
 // 游戏状态类
@@ -125,6 +136,13 @@ class ZombieGame {
         this.zombies = [];
         this.missions = [];
         this.currentMissionIndex = 0;
+        
+        // 追击恢复机制
+        this.playerMovesSinceContact = 0; // 玩家与僵尸碰撞后的移动计数
+        this.isRecoveryPeriod = false; // 是否处于追击恢复期间
+        this.MAX_MOVES_BEFORE_RECOVERY = 3; // 恢复追击前的最大移动次数
+        this.lastPlayerMoveTime = 0; // 记录玩家最后一次移动的时间
+        this.MAX_IDLE_TIME = 3; // 最大闲置时间（秒）
         
         this.init();
     }
@@ -325,6 +343,7 @@ class ZombieGame {
         this.currentMissionSteps = 0;
         this.playerHealth = 100;
         this.currentMissionIndex = 0;
+        this.lastPlayerMoveTime = Date.now(); // 初始化玩家最后一次移动时间
         
         // 初始化任务
         this.initMissions();
@@ -528,6 +547,9 @@ class ZombieGame {
             // 检查僵尸是否与玩家接触
             this.checkZombieContact();
             
+            // 检查玩家是否长时间未移动
+            this.checkPlayerIdleTime();
+            
             this.updateStats();
         }, 1000);
     }
@@ -621,12 +643,52 @@ class ZombieGame {
                     }, 500); // 与CSS动画时间一致
                 }
                 
+                // 触发追击停止逻辑
+                this.stopZombieChasing();
+                
                 // 检查是否游戏结束
                 if (this.playerHealth <= 0) {
                     this.gameOver();
                 }
             }
         });
+    }
+    
+    // 停止所有僵尸的追击行为
+    stopZombieChasing() {
+        this.zombies.forEach(zombie => {
+            zombie.setChasing(false);
+        });
+        
+        // 初始化追击恢复机制
+        this.playerMovesSinceContact = 0;
+        this.isRecoveryPeriod = true;
+    }
+    
+    // 处理玩家移动事件，实现追击恢复逻辑
+    handlePlayerMove() {
+        // 更新玩家最后一次移动时间
+        this.lastPlayerMoveTime = Date.now();
+        
+        if (!this.isRecoveryPeriod) return;
+        
+        this.playerMovesSinceContact++;
+        
+        // 检查是否达到恢复条件
+        if (this.playerMovesSinceContact >= this.MAX_MOVES_BEFORE_RECOVERY) {
+            this.restoreZombieChasing();
+        }
+    }
+    
+    // 恢复所有僵尸的追击行为
+    restoreZombieChasing() {
+        this.zombies.forEach(zombie => {
+            zombie.setChasing(true);
+        });
+        
+        this.isRecoveryPeriod = false;
+        this.playerMovesSinceContact = 0;
+        this.lastPlayerMoveTime = Date.now(); // 更新玩家最后一次移动时间
     }
 
     updateDirection() {
@@ -644,6 +706,9 @@ class ZombieGame {
         this.steps++;
         this.currentMissionSteps++;
         
+        // 处理移动计数和追击恢复
+        this.handlePlayerMove();
+        
         this.updatePlayerPosition();
         this.updateDirection();
     }
@@ -654,6 +719,9 @@ class ZombieGame {
         this.playerDirection = (this.playerDirection + 1) % 4;
         this.steps++;
         this.currentMissionSteps++;
+        
+        // 处理移动计数和追击恢复
+        this.handlePlayerMove();
         
         this.updatePlayerPosition();
         this.updateDirection();
@@ -682,6 +750,9 @@ class ZombieGame {
         this.playerPos.col = newCol;
         this.steps++;
         this.currentMissionSteps++;
+        
+        // 处理移动计数和追击恢复
+        this.handlePlayerMove();
         
         this.updatePlayerPosition();
         this.updateStats();
@@ -859,6 +930,11 @@ class ZombieGame {
         this.currentMissionSteps = 0;
         this.playerHealth = 100;
         this.currentMissionIndex = 0;
+        this.lastPlayerMoveTime = 0;
+        
+        // 重置追击恢复机制
+        this.playerMovesSinceContact = 0;
+        this.isRecoveryPeriod = false;
         
         // 重置任务和僵尸
         this.missions = [];

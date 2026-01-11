@@ -412,25 +412,41 @@ class Game {
         document.getElementById('btnGoStraight').addEventListener('click', () => this.goStraight());
 
         // 操作按钮
-        document.getElementById('btnStart').addEventListener('click', () => this.startGame());
-        document.getElementById('btnRestart').addEventListener('click', () => this.restartGame());
-        document.getElementById('btnPause').addEventListener('click', () => this.togglePause());
-        document.getElementById('btnHint').addEventListener('click', () => this.showHint());
+        const btnStart = document.getElementById('btnStart');
+        if (btnStart) btnStart.addEventListener('click', () => this.startGame());
+        
+        const btnRestart = document.getElementById('btnRestart');
+        if (btnRestart) btnRestart.addEventListener('click', () => this.restartGame());
+        
+        const btnPause = document.getElementById('btnPause');
+        if (btnPause) btnPause.addEventListener('click', () => this.togglePause());
+        
+        const btnHint = document.getElementById('btnHint');
+        if (btnHint) btnHint.addEventListener('click', () => this.showHint());
 
         // 其他按钮
-        document.getElementById('btnLeaderboard').addEventListener('click', () => {
+        const btnLeaderboard = document.getElementById('btnLeaderboard');
+        if (btnLeaderboard) btnLeaderboard.addEventListener('click', () => {
             this.showLeaderboard();
         });
-        document.getElementById('btnSettings').addEventListener('click', () => {
+        
+        const btnSettings = document.getElementById('btnSettings');
+        if (btnSettings) btnSettings.addEventListener('click', () => {
             // 打开管理员配置面板
-            document.getElementById('adminPanel').classList.add('active');
+            const adminPanel = document.getElementById('adminPanel');
+            if (adminPanel) adminPanel.classList.add('active');
         });
 
         // 排行榜相关
-        document.getElementById('closeLeaderboard').addEventListener('click', () => {
-            document.getElementById('leaderboardModal').classList.remove('active');
-        });
+        const closeLeaderboard = document.getElementById('closeLeaderboard');
+        if (closeLeaderboard) {
+            closeLeaderboard.addEventListener('click', () => {
+                const leaderboardModal = document.getElementById('leaderboardModal');
+                if (leaderboardModal) leaderboardModal.classList.remove('active');
+            });
+        }
         
+        // 使用querySelectorAll更安全，即使没有元素也不会出错
         document.querySelectorAll('.leaderboard-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
                 document.querySelectorAll('.leaderboard-tab').forEach(t => t.classList.remove('active'));
@@ -450,24 +466,31 @@ class Game {
             });
         });
 
-        document.getElementById('clearLeaderboard').addEventListener('click', () => {
-            this.showConfirmDialog(
-                '🧹 清空数据？ Clear Data?',
-                '确定要清空所有排行榜数据吗？此操作不可恢复！<br><small>Are you sure to clear all leaderboard data? This cannot be undone!</small>',
-                () => {
-                    localStorage.removeItem('leaderboard');
-                    this.showLeaderboard();
-                    this.showNotification('✅ 排行榜数据已清空！<br>Leaderboard cleared!', 'success');
-                }
-            );
-        });
+        const clearLeaderboard = document.getElementById('clearLeaderboard');
+        if (clearLeaderboard) {
+            clearLeaderboard.addEventListener('click', () => {
+                this.showConfirmDialog(
+                    '🧹 清空数据？ Clear Data?',
+                    '确定要清空所有排行榜数据吗？此操作不可恢复！<br><small>Are you sure to clear all leaderboard data? This cannot be undone!</small>',
+                    () => {
+                        localStorage.removeItem('leaderboard');
+                        this.showLeaderboard();
+                        this.showNotification('✅ 排行榜数据已清空！<br>Leaderboard cleared!', 'success');
+                    }
+                );
+            });
+        }
 
         // 建筑内部相关
-        document.getElementById('closeInterior').addEventListener('click', () => this.closeBuilding());
-        document.getElementById('btnExitBuilding').addEventListener('click', () => this.closeBuilding());
+        const closeInterior = document.getElementById('closeInterior');
+        if (closeInterior) closeInterior.addEventListener('click', () => this.closeBuilding());
+        
+        const btnExitBuilding = document.getElementById('btnExitBuilding');
+        if (btnExitBuilding) btnExitBuilding.addEventListener('click', () => this.closeBuilding());
 
         // 宝箱相关
-        document.getElementById('closeTreasure').addEventListener('click', () => this.closeTreasureBox());
+        const closeTreasure = document.getElementById('closeTreasure');
+        if (closeTreasure) closeTreasure.addEventListener('click', () => this.closeTreasureBox());
 
         // 键盘控制
         document.addEventListener('keydown', (e) => {
@@ -509,39 +532,46 @@ class Game {
         const body = document.body;
         const badge = document.getElementById('difficultyBadge');
         const btnHint = document.getElementById('btnHint');
+        const hintBox = document.getElementById('hintBox');
         
         if (difficulty === 'hard') {
             body.classList.add('hard-mode');
-            badge.textContent = '🔥 Hard Mode 困难模式';
-            badge.style.display = 'inline-block';
-            btnHint.style.display = 'inline-block';
+            if (badge) {
+                badge.textContent = '🔥 Hard Mode 困难模式';
+                badge.style.display = 'inline-block';
+            }
+            if (btnHint) btnHint.style.display = 'inline-block';
             
             // 更新提示文本
-            document.getElementById('hintBox').innerHTML = `
-                Hard Mode Challenge 困难模式挑战：
-                
-                <br>• One-way street restrictions 单行道限制
-                <br>• Multiple missions challenge 多任务连续挑战
-                <div class="keyboard-hints">
-                    <span class="key">⬅️ Turn Left 左转</span>
-                    <span class="key">⬆️ Go Straight 前进</span>
-                    <span class="key">➡️ Turn Right 右转</span>
-                </div>
-            `;
+            if (hintBox) {
+                hintBox.innerHTML = `
+                    Hard Mode Challenge 困难模式挑战：
+                    
+                    <br>• One-way street restrictions 单行道限制
+                    <br>• Multiple missions challenge 多任务连续挑战
+                    <div class="keyboard-hints">
+                        <span class="key">⬅️ Turn Left 左转</span>
+                        <span class="key">⬆️ Go Straight 前进</span>
+                        <span class="key">➡️ Turn Right 右转</span>
+                    </div>
+                `;
+            }
         } else {
             body.classList.remove('hard-mode');
-            badge.style.display = 'none';
-            btnHint.style.display = 'none';
+            if (badge) badge.style.display = 'none';
+            if (btnHint) btnHint.style.display = 'none';
             
             // 恢复简单模式提示文本
-            document.getElementById('hintBox').innerHTML = `
-                Use direction buttons or keyboard arrow keys to control character movement, reach the destination to get points! 使用方向按钮或键盘方向键控制角色移动，到达目标地点获得分数！
-                <div class="keyboard-hints">
-                    <span class="key">⬅️ Turn Left 左转</span>
-                    <span class="key">⬆️ Go Straight 前进</span>
-                    <span class="key">➡️ Turn Right 右转</span>
-                </div>
-            `;
+            if (hintBox) {
+                hintBox.innerHTML = `
+                    Use direction buttons or keyboard arrow keys to control character movement, reach the destination to get points! 使用方向按钮或键盘方向键控制角色移动，到达目标地点获得分数！
+                    <div class="keyboard-hints">
+                        <span class="key">⬅️ Turn Left 左转</span>
+                        <span class="key">⬆️ Go Straight 前进</span>
+                        <span class="key">➡️ Turn Right 右转</span>
+                    </div>
+                `;
+            }
         }
         
         this.renderMap();
@@ -770,12 +800,23 @@ class Game {
         this.generateDestination();
         
         // 更新UI
-        document.getElementById('btnStart').disabled = true;
-        document.getElementById('btnRestart').disabled = false;
-        document.getElementById('btnPause').disabled = false;
-        document.getElementById('btnTurnLeft').disabled = false;
-        document.getElementById('btnGoStraight').disabled = false;
-        document.getElementById('btnTurnRight').disabled = false;
+        const btnStart = document.getElementById('btnStart');
+        if (btnStart) btnStart.disabled = true;
+        
+        const btnRestart = document.getElementById('btnRestart');
+        if (btnRestart) btnRestart.disabled = false;
+        
+        const btnPause = document.getElementById('btnPause');
+        if (btnPause) btnPause.disabled = false;
+        
+        const btnTurnLeft = document.getElementById('btnTurnLeft');
+        if (btnTurnLeft) btnTurnLeft.disabled = false;
+        
+        const btnGoStraight = document.getElementById('btnGoStraight');
+        if (btnGoStraight) btnGoStraight.disabled = false;
+        
+        const btnTurnRight = document.getElementById('btnTurnRight');
+        if (btnTurnRight) btnTurnRight.disabled = false;
         
         this.updateStats();
         this.updatePlayerPosition();
@@ -859,7 +900,8 @@ class Game {
         });
         
         const completed = this.missions.filter(m => m.completed).length;
-        document.getElementById('missionProgress').textContent = `(${completed}/${this.missions.length})`;
+        const missionProgress = document.getElementById('missionProgress');
+        if (missionProgress) missionProgress.textContent = `(${completed}/${this.missions.length})`;
     }
 
     generateDestination() {
@@ -890,13 +932,19 @@ class Game {
         this.selectBorderCell();
         
         // 更新UI
-        document.getElementById('destinationName').textContent = this.currentDestination.name;
-        document.getElementById('destinationNameEn').textContent = this.currentDestination.nameEn;
+        const destinationName = document.getElementById('destinationName');
+        if (destinationName) destinationName.textContent = this.currentDestination.name;
+        
+        const destinationNameEn = document.getElementById('destinationNameEn');
+        if (destinationNameEn) destinationNameEn.textContent = this.currentDestination.nameEn;
         
         if (this.difficulty === 'hard') {
             const distance = this.calculateDistance();
-            document.getElementById('destinationDistance').textContent = `📍 预计距离: ${distance}个街区`;
-            document.getElementById('destinationDistance').style.display = 'block';
+            const destinationDistance = document.getElementById('destinationDistance');
+            if (destinationDistance) {
+                destinationDistance.textContent = `📍 预计距离: ${distance}个街区`;
+                destinationDistance.style.display = 'block';
+            }
         }
         
         this.updateDestinationMarker();
@@ -1004,13 +1052,15 @@ class Game {
         document.querySelectorAll('.destination-marker').forEach(m => m.remove());
         
         // 添加新标记（使用边界格子）
-        const targetPos = this.currentDestination.targetPos || this.currentDestination.pos[0];
-        const cell = document.querySelector(`[data-row="${targetPos[0]}"][data-col="${targetPos[1]}"]`);
-        if (cell) {
-            const marker = document.createElement('span');
-            marker.className = 'destination-marker';
-            marker.textContent = '🎯';
-            cell.appendChild(marker);
+        if (this.currentDestination) {
+            const targetPos = this.currentDestination.targetPos || this.currentDestination.pos[0];
+            const cell = document.querySelector(`[data-row="${targetPos[0]}"][data-col="${targetPos[1]}"]`);
+            if (cell) {
+                const marker = document.createElement('span');
+                marker.className = 'destination-marker';
+                marker.textContent = '🎯';
+                cell.appendChild(marker);
+            }
         }
     }
 
@@ -1044,16 +1094,20 @@ class Game {
     }
 
     updateStats() {
-        document.getElementById('currentScore').textContent = this.score;
-        document.getElementById('steps').textContent = this.currentMissionSteps;  // 显示当前任务步数
+        const currentScore = document.getElementById('currentScore');
+        if (currentScore) currentScore.textContent = this.score;
+        
+        const steps = document.getElementById('steps');
+        if (steps) steps.textContent = this.currentMissionSteps;  // 显示当前任务步数
         
         const minutes = Math.floor(Math.abs(this.time) / 60);
         const seconds = Math.abs(this.time) % 60;
-        document.getElementById('time').textContent = 
-            `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        const time = document.getElementById('time');
+        if (time) time.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
         
         if (this.difficulty === 'hard') {
-            document.getElementById('combo').textContent = `×${this.combo}`;
+            const combo = document.getElementById('combo');
+            if (combo) combo.textContent = `×${this.combo}`;
         }
     }
     
@@ -1081,7 +1135,8 @@ class Game {
     }
 
     updateHighScore() {
-        document.getElementById('highScore').textContent = this.highScore;
+        const highScore = document.getElementById('highScore');
+        if (highScore) highScore.textContent = this.highScore;
     }
 
     updatePlayerPosition() {
