@@ -14,6 +14,9 @@ const DIRECTION_NAMES = {
     3: { zh: '向西', en: 'West' }
 };
 
+// localStorage key
+const STORAGE_KEY = 'zombieModeData';
+
 // 获取双语方向名称
 function getDirectionText(direction) {
     const dir = DIRECTION_NAMES[direction];
@@ -40,6 +43,13 @@ const BUILDINGS_ZOMBIE = [
     { icon: '🏟️', name: '体育馆', nameEn: 'Stadium', pos: [[9,9], [9,10], [9,11], [10,9], [10,10], [10,11]] }
 ];
 
+// 僵尸状态枚举
+const ZOMBIE_STATES = {
+    NORMAL: 'normal',           // 普通状态
+    POWERED_UP: 'powered_up',   // 获得爱心状态
+    RECOVERING: 'recovering'    // 效果结束恢复状态
+};
+
 // 僵尸类
 class Zombie {
     constructor(row, col) {
@@ -47,15 +57,47 @@ class Zombie {
         this.icon = '🧟';
         this.direction = Math.floor(Math.random() * 4);
         this.isChasing = true; // 默认开启追击
+        this.speedBoost = false; // 速度提升状态
+        this.speedBoostEndTime = 0; // 速度提升结束时间
+        
+        // 僵尸状态管理
+        this.state = ZOMBIE_STATES.NORMAL; // 当前状态
+        this.scale = 1.0; // 体型缩放比例
+        this.powerUpEndTime = 0; // 爱心效果结束时间
+        this.powerUpDuration = 7000; // 爱心效果持续时间（毫秒）
+        this.moveSpeed = 1; // 移动速度倍率
+        this.detectionRange = 3; // 玩家检测范围
     }
 
     // 僵尸移动逻辑
-    move(map, playerPos, gridSize) {
-        // 检查是否接近玩家（3格内），如果是且允许追击，则追踪玩家
-        if (this.isChasing && Math.abs(this.pos.row - playerPos.row) <= 3 && Math.abs(this.pos.col - playerPos.col) <= 3) {
-            this.chasePlayer(playerPos);
+    move(map, playerPos, gridSize, hearts) {
+        // 检查爱心效果是否过期
+        if (this.state === ZOMBIE_STATES.POWERED_UP && Date.now() > this.powerUpEndTime) {
+            this.endPowerUp();
+        }
+        
+        // 检查速度提升是否过期
+        if (this.speedBoost && Date.now() > this.speedBoostEndTime) {
+            this.speedBoost = false;
+        }
+
+        // 获取目标优先级：第一优先级玩家，第二优先级爱心
+        const target = this.selectTarget(hearts, playerPos);
+        
+        if (target) {
+            if (target.type === 'player') {
+                // 追踪玩家（最高优先级）
+                if (this.isChasing) {
+                    this.chasePlayer(playerPos);
+                } else {
+                    this.randomMove(gridSize);
+                }
+            } else if (target.type === 'heart') {
+                // 追踪爱心（第二优先级）
+                this.chaseTarget(target.pos);
+            }
         } else {
-            // 随机移动
+            // 第三优先级：随机移动
             this.randomMove(gridSize);
         }
 
@@ -65,6 +107,63 @@ class Zombie {
             // 如果走到了建筑物或障碍物上，退回到原来的位置
             this.pos.row = Math.max(0, Math.min(gridSize - 1, this.pos.row));
             this.pos.col = Math.max(0, Math.min(gridSize - 1, this.pos.col));
+        }
+    }
+
+    // 选择目标（优先追踪玩家，其次追踪爱心）
+    selectTarget(hearts, playerPos) {
+        // 第一优先级：检测玩家是否在范围内
+        if (this.isPlayerInRange(playerPos)) {
+            const playerDistance = this.calculateDistance(playerPos);
+            return { type: 'player', pos: playerPos, distance: playerDistance };
+        }
+        
+        // 第二优先级：查找最近的激活爱心
+        let nearestHeart = null;
+        let nearestHeartDistance = Infinity;
+        
+        hearts.forEach(heart => {
+            if (heart.isHeartActive()) {
+                const distance = this.calculateDistance(heart.pos);
+                if (distance < nearestHeartDistance) {
+                    nearestHeart = heart;
+                    nearestHeartDistance = distance;
+                }
+            }
+        });
+        
+        // 如果有爱心在检测范围内，追踪爱心
+        if (nearestHeart && nearestHeartDistance <= 5) {
+            return { type: 'heart', pos: nearestHeart.pos, distance: nearestHeartDistance };
+        }
+        
+        // 第三优先级：无目标
+        return null;
+    }
+
+    // 计算距离
+    calculateDistance(targetPos) {
+        return Math.abs(this.pos.row - targetPos.row) + Math.abs(this.pos.col - targetPos.col);
+    }
+
+    // 检查玩家是否在检测范围内
+    isPlayerInRange(playerPos) {
+        return Math.abs(this.pos.row - playerPos.row) <= this.detectionRange && 
+               Math.abs(this.pos.col - playerPos.col) <= this.detectionRange;
+    }
+
+    // 追踪目标
+    chaseTarget(targetPos) {
+        const rowDiff = targetPos.row - this.pos.row;
+        const colDiff = targetPos.col - this.pos.col;
+
+        // 优先向目标方向移动
+        if (Math.abs(rowDiff) > Math.abs(colDiff)) {
+            // 上下移动
+            this.pos.row += rowDiff > 0 ? 1 : -1;
+        } else {
+            // 左右移动
+            this.pos.col += colDiff > 0 ? 1 : -1;
         }
     }
 
@@ -102,7 +201,27 @@ class Zombie {
                 break;
         }
     }
-    
+
+    // 获得爱心效果
+    activatePowerUp() {
+        this.state = ZOMBIE_STATES.POWERED_UP;
+        this.scale = 2.0; // 体型增大至2倍
+        this.powerUpEndTime = Date.now() + this.powerUpDuration;
+        this.moveSpeed = 1.5; // 移动速度提升50%
+        this.detectionRange = 5; // 玩家检测范围扩大至5格
+        
+        // 立即启用追击状态，确保获得爱心后立即追踪玩家
+        this.isChasing = true;
+    }
+
+    // 结束爱心效果
+    endPowerUp() {
+        this.state = ZOMBIE_STATES.NORMAL;
+        this.scale = 1.0; // 恢复原始大小
+        this.moveSpeed = 1; // 恢复原始速度
+        this.detectionRange = 3; // 恢复原始检测范围
+    }
+
     // 设置追击状态
     setChasing(chasing) {
         this.isChasing = chasing;
@@ -111,6 +230,46 @@ class Zombie {
     // 获取追击状态
     getChasing() {
         return this.isChasing;
+    }
+    
+    // 获取速度提升状态
+    hasSpeedBoost() {
+        return this.speedBoost;
+    }
+
+    // 获取当前状态
+    getState() {
+        return this.state;
+    }
+
+    // 获取体型缩放比例
+    getScale() {
+        return this.scale;
+    }
+}
+
+// 爱心道具类
+class Heart {
+    constructor(row, col) {
+        this.pos = { row, col };
+        this.icon = '❤️';
+        this.isActive = true;
+        this.pulseAnimation = true;
+    }
+
+    // 获取位置
+    getPosition() {
+        return this.pos;
+    }
+
+    // 检查是否激活
+    isHeartActive() {
+        return this.isActive;
+    }
+
+    // 设置激活状态
+    setActive(active) {
+        this.isActive = active;
     }
 }
 
@@ -137,12 +296,27 @@ class ZombieGame {
         this.missions = [];
         this.currentMissionIndex = 0;
         
+        // 用户数据
+        this.highScore = 0;
+        this.totalGamesPlayed = 0;
+        this.totalSteps = 0;
+        this.totalTime = 0;
+        
+        // 爱心道具系统
+        this.hearts = [];
+        this.maxHearts = 2; // 最大爱心数量
+        this.heartRespawnTime = 10; // 爱心重生时间（秒）
+        this.heartRespawnTimers = {}; // 爱心重生计时器
+        
         // 追击恢复机制
         this.playerMovesSinceContact = 0; // 玩家与僵尸碰撞后的移动计数
         this.isRecoveryPeriod = false; // 是否处于追击恢复期间
         this.MAX_MOVES_BEFORE_RECOVERY = 3; // 恢复追击前的最大移动次数
         this.lastPlayerMoveTime = 0; // 记录玩家最后一次移动的时间
         this.MAX_IDLE_TIME = 3; // 最大闲置时间（秒）
+        
+        // 加载用户数据
+        this.loadUserData();
         
         this.init();
     }
@@ -151,6 +325,10 @@ class ZombieGame {
         this.setupEventListeners();
         this.renderMap();
         this.generateZombies(5); // 生成5个僵尸
+        
+        // 更新UI显示初始数据
+        this.updateStats();
+        this.updateHealthBar();
     }
 
     setupEventListeners() {
@@ -169,9 +347,10 @@ class ZombieGame {
         document.getElementById('btnPause').addEventListener('click', () => this.togglePause());
         
         // 方向控制按钮
-        document.getElementById('btnTurnLeft').addEventListener('click', () => this.turnLeft());
-        document.getElementById('btnGoStraight').addEventListener('click', () => this.goStraight());
-        document.getElementById('btnTurnRight').addEventListener('click', () => this.turnRight());
+        document.getElementById('btnUp').addEventListener('click', () => this.moveUp());
+        document.getElementById('btnDown').addEventListener('click', () => this.moveDown());
+        document.getElementById('btnLeft').addEventListener('click', () => this.moveLeft());
+        document.getElementById('btnRight').addEventListener('click', () => this.moveRight());
         
         // 游戏结束弹窗按钮
         document.getElementById('btnRestartGame').addEventListener('click', () => this.restartGame());
@@ -183,15 +362,19 @@ class ZombieGame {
             switch(e.key) {
                 case 'ArrowLeft':
                     e.preventDefault();
-                    this.turnLeft();
-                    break;
-                case 'ArrowUp':
-                    e.preventDefault();
-                    this.goStraight();
+                    this.moveLeft();
                     break;
                 case 'ArrowRight':
                     e.preventDefault();
-                    this.turnRight();
+                    this.moveRight();
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    this.moveUp();
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    this.moveDown();
                     break;
             }
         });
@@ -209,6 +392,44 @@ class ZombieGame {
             
             this.zombies.push(new Zombie(row, col));
         }
+    }
+
+    generateHearts() {
+        this.hearts = [];
+        const map = this.createMapLayout();
+        
+        for (let i = 0; i < this.maxHearts; i++) {
+            let row, col;
+            let attempts = 0;
+            const maxAttempts = 100;
+            
+            do {
+                row = Math.floor(Math.random() * this.gridSize);
+                col = Math.floor(Math.random() * this.gridSize);
+                attempts++;
+                
+                // 检查是否为道路且不是障碍物
+                const cellType = map[row][col];
+                const isRoad = cellType.type === 'road';
+                const isObstacle = cellType.type === 'obstacle';
+                const isBuilding = cellType.type === 'building';
+                
+                // 确保不在玩家初始位置附近
+                const tooCloseToPlayer = Math.abs(row - this.playerPos.row) <= 2 && Math.abs(col - this.playerPos.col) <= 2;
+                
+                // 确保不与其他爱心重叠
+                const tooCloseToOtherHeart = this.hearts.some(heart => 
+                    Math.abs(heart.pos.row - row) <= 1 && Math.abs(heart.pos.col - col) <= 1
+                );
+                
+                if (isRoad && !isObstacle && !isBuilding && !tooCloseToPlayer && !tooCloseToOtherHeart) {
+                    this.hearts.push(new Heart(row, col));
+                    break;
+                }
+            } while (attempts < maxAttempts);
+        }
+        
+        this.updateHeartsPosition();
     }
 
     renderMap() {
@@ -264,6 +485,7 @@ class ZombieGame {
         
         this.updatePlayerPosition();
         this.updateZombiesPosition();
+        this.updateHeartsPosition();
     }
 
     createMapLayout() {
@@ -345,19 +567,25 @@ class ZombieGame {
         this.currentMissionIndex = 0;
         this.lastPlayerMoveTime = Date.now(); // 初始化玩家最后一次移动时间
         
+        console.log('游戏开始 - 初始分数:', this.score);
+        
         // 初始化任务
         this.initMissions();
         
         // 生成目标
         this.generateDestination();
         
+        // 生成爱心道具
+        this.generateHearts();
+        
         // 更新UI
         document.getElementById('btnStart').disabled = true;
         document.getElementById('btnRestart').disabled = false;
         document.getElementById('btnPause').disabled = false;
-        document.getElementById('btnTurnLeft').disabled = false;
-        document.getElementById('btnGoStraight').disabled = false;
-        document.getElementById('btnTurnRight').disabled = false;
+        document.getElementById('btnUp').disabled = false;
+        document.getElementById('btnDown').disabled = false;
+        document.getElementById('btnLeft').disabled = false;
+        document.getElementById('btnRight').disabled = false;
         
         this.updateStats();
         this.updateHealthBar();
@@ -391,6 +619,58 @@ class ZombieGame {
             music.currentTime = 0;
         }
         this.isMusicPlaying = false;
+    }
+    
+    // 加载用户数据
+    loadUserData() {
+        try {
+            const data = localStorage.getItem(STORAGE_KEY);
+            console.log('从localStorage读取的数据:', data);
+            if (data) {
+                const userData = JSON.parse(data);
+                this.highScore = userData.highScore || 0;
+                this.totalGamesPlayed = userData.totalGamesPlayed || 0;
+                this.totalSteps = userData.totalSteps || 0;
+                this.totalTime = userData.totalTime || 0;
+                console.log('加载的用户数据:', userData);
+            } else {
+                console.log('没有找到历史数据，使用默认值');
+            }
+        } catch (error) {
+            console.error('加载用户数据失败:', error);
+        }
+    }
+    
+    // 保存用户数据
+    saveUserData() {
+        try {
+            const userData = {
+                highScore: this.highScore,
+                totalGamesPlayed: this.totalGamesPlayed,
+                totalSteps: this.totalSteps,
+                totalTime: this.totalTime
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+            console.log('保存的用户数据:', userData);
+            console.log('localStorage中的数据:', localStorage.getItem(STORAGE_KEY));
+        } catch (error) {
+            console.error('保存用户数据失败:', error);
+        }
+    }
+    
+    // 更新用户数据
+    updateUserData() {
+        console.log('更新用户数据 - 分数:', this.score, '步数:', this.steps, '时间:', this.time);
+        this.totalGamesPlayed++;
+        this.totalSteps += this.steps;
+        this.totalTime += this.time;
+        
+        if (this.score > this.highScore) {
+            this.highScore = this.score;
+            console.log('新最高分:', this.highScore);
+        }
+        
+        this.saveUserData();
     }
     
     // 切换音乐状态
@@ -539,8 +819,11 @@ class ZombieGame {
             this.time++;
             this.currentMissionTime++;
             
-            // 每2秒移动一次僵尸
-            if (this.time % 2 === 0) {
+            // 检查是否有僵尸处于powered-up状态
+            const hasPoweredUpZombie = this.zombies.some(z => z.getState() === ZOMBIE_STATES.POWERED_UP);
+            
+            // 如果有powered-up僵尸，每秒移动一次，否则每2秒移动一次
+            if (hasPoweredUpZombie || this.time % 2 === 0) {
                 this.moveZombies();
             }
             
@@ -556,6 +839,7 @@ class ZombieGame {
 
     updateStats() {
         document.getElementById('currentScore').textContent = this.score;
+        document.getElementById('highScoreDisplay').textContent = this.highScore;
         document.getElementById('steps').textContent = this.currentMissionSteps;
         
         const minutes = Math.floor(this.time / 60);
@@ -598,6 +882,111 @@ class ZombieGame {
         }
     }
 
+    checkHeartCollisions() {
+        // 检查玩家与爱心的碰撞
+        this.hearts.forEach((heart, index) => {
+            if (heart.isHeartActive() && 
+                heart.pos.row === this.playerPos.row && 
+                heart.pos.col === this.playerPos.col) {
+                // 玩家拾取爱心
+                this.playerHealth = this.playerHealth + 20;
+                heart.setActive(false);
+                this.updateHealthBar();
+                this.updateHeartsPosition();
+                
+                // 注意：爱心不会重生，只在任务完成后统一刷新
+            }
+        });
+
+        // 检查僵尸与爱心的碰撞
+        // 先找到所有与僵尸碰撞的爱心索引
+        const collectedHeartIndices = new Set();
+        
+        this.zombies.forEach(zombie => {
+            this.hearts.forEach((heart, index) => {
+                if (heart.isHeartActive() && 
+                    !collectedHeartIndices.has(index) &&
+                    heart.pos.row === zombie.pos.row && 
+                    heart.pos.col === zombie.pos.col) {
+                    // 僵尸拾取爱心，激活power-up效果
+                    heart.setActive(false);
+                    collectedHeartIndices.add(index);
+                    zombie.activatePowerUp();
+                    
+                    // 注意：爱心不会重生，只在任务完成后统一刷新
+                    // activatePowerUp() 内部已设置 isChasing = true，确保立即追踪玩家
+                }
+            });
+        });
+        
+        // 更新爱心和僵尸位置
+        if (collectedHeartIndices.size > 0) {
+            this.updateHeartsPosition();
+            this.updateZombiesPosition();
+        }
+    }
+
+    // 安排爱心重生
+    scheduleHeartRespawn(index) {
+        if (this.heartRespawnTimers[index]) {
+            clearTimeout(this.heartRespawnTimers[index]);
+        }
+        
+        this.heartRespawnTimers[index] = setTimeout(() => {
+            this.respawnHeart(index);
+        }, this.heartRespawnTime * 1000);
+    }
+
+    // 重生爱心
+    respawnHeart(index) {
+        if (!this.isGameStarted || this.isPaused) {
+            // 如果游戏未开始或暂停，重新安排重生
+            this.scheduleHeartRespawn(index);
+            return;
+        }
+        
+        const map = this.createMapLayout();
+        let row, col;
+        let attempts = 0;
+        const maxAttempts = 100;
+        
+        do {
+            row = Math.floor(Math.random() * this.gridSize);
+            col = Math.floor(Math.random() * this.gridSize);
+            attempts++;
+            
+            // 检查是否为道路且不是障碍物
+            const cellType = map[row][col];
+            const isRoad = cellType.type === 'road';
+            const isObstacle = cellType.type === 'obstacle';
+            const isBuilding = cellType.type === 'building';
+            
+            // 确保不在玩家当前位置附近
+            const tooCloseToPlayer = Math.abs(row - this.playerPos.row) <= 2 && Math.abs(col - this.playerPos.col) <= 2;
+            
+            // 确保不与其他爱心重叠
+            const tooCloseToOtherHeart = this.hearts.some((heart, i) => 
+                i !== index && heart.isHeartActive() && 
+                Math.abs(heart.pos.row - row) <= 1 && Math.abs(heart.pos.col - col) <= 1
+            );
+            
+            // 确保不在僵尸当前位置附近
+            const tooCloseToZombie = this.zombies.some(zombie => 
+                Math.abs(zombie.pos.row - row) <= 1 && Math.abs(zombie.pos.col - col) <= 1
+            );
+            
+            if (isRoad && !isObstacle && !isBuilding && !tooCloseToPlayer && !tooCloseToOtherHeart && !tooCloseToZombie) {
+                this.hearts[index].pos = { row, col };
+                this.hearts[index].setActive(true);
+                this.updateHeartsPosition();
+                break;
+            }
+        } while (attempts < maxAttempts);
+        
+        // 清除重生计时器
+        delete this.heartRespawnTimers[index];
+    }
+
     updateZombiesPosition() {
         // 移除旧位置
         document.querySelectorAll('.zombie').forEach(z => z.remove());
@@ -610,18 +999,86 @@ class ZombieGame {
             if (cell) {
                 const zombieEl = document.createElement('div');
                 zombieEl.className = 'zombie';
+                
+                // 应用体型缩放
+                zombieEl.style.transform = `scale(${zombie.getScale()})`;
+                
+                // 根据状态添加不同的CSS类
+                if (zombie.getState() === ZOMBIE_STATES.POWERED_UP) {
+                    zombieEl.classList.add('powered-up');
+                }
+                
+                if (zombie.hasSpeedBoost()) {
+                    zombieEl.classList.add('speed-boost');
+                }
+                
                 zombieEl.textContent = zombie.icon;
                 cell.appendChild(zombieEl);
             }
         });
     }
 
+    updateHeartsPosition() {
+        // 移除旧位置
+        document.querySelectorAll('.heart').forEach(h => h.remove());
+        
+        this.hearts.forEach(heart => {
+            if (heart.isHeartActive()) {
+                const cell = document.querySelector(
+                    `[data-row="${heart.pos.row}"][data-col="${heart.pos.col}"]`
+                );
+                
+                if (cell) {
+                    const heartEl = document.createElement('div');
+                    heartEl.className = 'heart';
+                    heartEl.textContent = heart.icon;
+                    cell.appendChild(heartEl);
+                }
+            }
+        });
+    }
+
+    refreshHearts() {
+        console.log('任务完成，刷新爱心图标');
+        
+        // 为现有爱心添加淡出效果
+        const existingHearts = document.querySelectorAll('.heart');
+        existingHearts.forEach(heart => {
+            heart.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+            heart.style.opacity = '0';
+            heart.style.transform = 'scale(0.5)';
+        });
+        
+        // 等待淡出动画完成后重新生成爱心
+        setTimeout(() => {
+            // 清除所有爱心重生计时器
+            Object.values(this.heartRespawnTimers).forEach(timer => clearTimeout(timer));
+            this.heartRespawnTimers = {};
+            
+            // 重新生成爱心
+            this.generateHearts();
+            
+            // 为新生成的爱心添加淡入效果
+            setTimeout(() => {
+                const newHearts = document.querySelectorAll('.heart');
+                newHearts.forEach(heart => {
+                    heart.style.transition = 'opacity 0.5s ease-in, transform 0.5s ease-in';
+                    heart.style.opacity = '1';
+                    heart.style.transform = 'scale(1)';
+                });
+            }, 50);
+        }, 500);
+    }
+
     moveZombies() {
         const map = this.createMapLayout();
         this.zombies.forEach(zombie => {
-            zombie.move(map, this.playerPos, this.gridSize);
+            zombie.move(map, this.playerPos, this.gridSize, this.hearts);
         });
         this.updateZombiesPosition();
+        
+        // 检查僵尸与爱心的碰撞
+        this.checkHeartCollisions();
     }
 
     checkZombieContact() {
@@ -699,55 +1156,21 @@ class ZombieGame {
         text.textContent = getDirectionText(this.playerDirection);
     }
 
-    turnLeft() {
+    moveUp() {
         if (!this.isGameStarted || this.isPaused) return;
         
-        this.playerDirection = (this.playerDirection + 3) % 4;
-        this.steps++;
-        this.currentMissionSteps++;
-        
-        // 处理移动计数和追击恢复
-        this.handlePlayerMove();
-        
-        this.updatePlayerPosition();
-        this.updateDirection();
-    }
-
-    turnRight() {
-        if (!this.isGameStarted || this.isPaused) return;
-        
-        this.playerDirection = (this.playerDirection + 1) % 4;
-        this.steps++;
-        this.currentMissionSteps++;
-        
-        // 处理移动计数和追击恢复
-        this.handlePlayerMove();
-        
-        this.updatePlayerPosition();
-        this.updateDirection();
-    }
-
-    goStraight() {
-        if (!this.isGameStarted || this.isPaused) return;
-        
-        let newRow = this.playerPos.row;
+        let newRow = this.playerPos.row - 1;
         let newCol = this.playerPos.col;
         
-        switch(this.playerDirection) {
-            case DIRECTIONS.NORTH: newRow--; break;
-            case DIRECTIONS.EAST: newCol++; break;
-            case DIRECTIONS.SOUTH: newRow++; break;
-            case DIRECTIONS.WEST: newCol--; break;
-        }
-        
         // 检查移动合法性
-        if (!this.isValidMove(newRow, newCol, this.playerDirection)) {
+        if (!this.isValidMove(newRow, newCol, DIRECTIONS.NORTH)) {
             return;
         }
         
         // 移动成功
         this.playerPos.row = newRow;
         this.playerPos.col = newCol;
+        this.playerDirection = DIRECTIONS.NORTH;
         this.steps++;
         this.currentMissionSteps++;
         
@@ -755,10 +1178,110 @@ class ZombieGame {
         this.handlePlayerMove();
         
         this.updatePlayerPosition();
+        this.updateDirection();
         this.updateStats();
         
         // 检查是否到达目标
         this.checkDestination();
+        
+        // 检查爱心碰撞
+        this.checkHeartCollisions();
+    }
+
+    moveDown() {
+        if (!this.isGameStarted || this.isPaused) return;
+        
+        let newRow = this.playerPos.row + 1;
+        let newCol = this.playerPos.col;
+        
+        // 检查移动合法性
+        if (!this.isValidMove(newRow, newCol, DIRECTIONS.SOUTH)) {
+            return;
+        }
+        
+        // 移动成功
+        this.playerPos.row = newRow;
+        this.playerPos.col = newCol;
+        this.playerDirection = DIRECTIONS.SOUTH;
+        this.steps++;
+        this.currentMissionSteps++;
+        
+        // 处理移动计数和追击恢复
+        this.handlePlayerMove();
+        
+        this.updatePlayerPosition();
+        this.updateDirection();
+        this.updateStats();
+        
+        // 检查是否到达目标
+        this.checkDestination();
+        
+        // 检查爱心碰撞
+        this.checkHeartCollisions();
+    }
+
+    moveLeft() {
+        if (!this.isGameStarted || this.isPaused) return;
+        
+        let newRow = this.playerPos.row;
+        let newCol = this.playerPos.col - 1;
+        
+        // 检查移动合法性
+        if (!this.isValidMove(newRow, newCol, DIRECTIONS.WEST)) {
+            return;
+        }
+        
+        // 移动成功
+        this.playerPos.row = newRow;
+        this.playerPos.col = newCol;
+        this.playerDirection = DIRECTIONS.WEST;
+        this.steps++;
+        this.currentMissionSteps++;
+        
+        // 处理移动计数和追击恢复
+        this.handlePlayerMove();
+        
+        this.updatePlayerPosition();
+        this.updateDirection();
+        this.updateStats();
+        
+        // 检查是否到达目标
+        this.checkDestination();
+        
+        // 检查爱心碰撞
+        this.checkHeartCollisions();
+    }
+
+    moveRight() {
+        if (!this.isGameStarted || this.isPaused) return;
+        
+        let newRow = this.playerPos.row;
+        let newCol = this.playerPos.col + 1;
+        
+        // 检查移动合法性
+        if (!this.isValidMove(newRow, newCol, DIRECTIONS.EAST)) {
+            return;
+        }
+        
+        // 移动成功
+        this.playerPos.row = newRow;
+        this.playerPos.col = newCol;
+        this.playerDirection = DIRECTIONS.EAST;
+        this.steps++;
+        this.currentMissionSteps++;
+        
+        // 处理移动计数和追击恢复
+        this.handlePlayerMove();
+        
+        this.updatePlayerPosition();
+        this.updateDirection();
+        this.updateStats();
+        
+        // 检查是否到达目标
+        this.checkDestination();
+        
+        // 检查爱心碰撞
+        this.checkHeartCollisions();
     }
 
     checkOneway(cell, direction) {
@@ -831,6 +1354,8 @@ class ZombieGame {
         const earnedScore = baseScore + timeBonus + stepBonus;
         this.score += earnedScore;
         
+        console.log('到达目的地 - 基础分:', baseScore, '时间奖励:', timeBonus, '步数奖励:', stepBonus, '获得分数:', earnedScore, '总分:', this.score);
+        
         // 更新任务状态
         if (this.currentMissionIndex < this.missions.length) {
             this.missions[this.currentMissionIndex].completed = true;
@@ -852,6 +1377,9 @@ class ZombieGame {
         
         // 生成新目标
         this.generateDestination();
+        
+        // 任务完成后刷新爱心（带平滑过渡效果）
+        this.refreshHearts();
     }
 
     gameComplete() {
@@ -866,13 +1394,18 @@ class ZombieGame {
         document.getElementById('btnStart').disabled = false;
         document.getElementById('btnRestart').disabled = true;
         document.getElementById('btnPause').disabled = true;
-        document.getElementById('btnTurnLeft').disabled = true;
-        document.getElementById('btnGoStraight').disabled = true;
-        document.getElementById('btnTurnRight').disabled = true;
+        document.getElementById('btnUp').disabled = true;
+        document.getElementById('btnDown').disabled = true;
+        document.getElementById('btnLeft').disabled = true;
+        document.getElementById('btnRight').disabled = true;
     }
 
     gameOver() {
+        console.log('gameOver被调用 - 当前分数:', this.score, '步数:', this.steps, '时间:', this.time);
         clearInterval(this.timer);
+        
+        // 更新用户数据
+        this.updateUserData();
         
         // 显示游戏结束弹窗
         document.getElementById('finalScore').textContent = this.score;
@@ -883,6 +1416,8 @@ class ZombieGame {
         document.getElementById('finalTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
         document.getElementById('finalSteps').textContent = this.steps;
         
+        console.log('更新游戏结束UI - 分数:', this.score, '步数:', this.steps, '时间:', this.time);
+        
         document.getElementById('gameOverModal').classList.add('active');
         
         // 停止背景音乐
@@ -892,9 +1427,10 @@ class ZombieGame {
         document.getElementById('btnStart').disabled = false;
         document.getElementById('btnRestart').disabled = true;
         document.getElementById('btnPause').disabled = true;
-        document.getElementById('btnTurnLeft').disabled = true;
-        document.getElementById('btnGoStraight').disabled = true;
-        document.getElementById('btnTurnRight').disabled = true;
+        document.getElementById('btnUp').disabled = true;
+        document.getElementById('btnDown').disabled = true;
+        document.getElementById('btnLeft').disabled = true;
+        document.getElementById('btnRight').disabled = true;
     }
 
     restartGame() {
@@ -915,9 +1451,10 @@ class ZombieGame {
         document.getElementById('btnStart').disabled = false;
         document.getElementById('btnRestart').disabled = true;
         document.getElementById('btnPause').disabled = true;
-        document.getElementById('btnTurnLeft').disabled = true;
-        document.getElementById('btnGoStraight').disabled = true;
-        document.getElementById('btnTurnRight').disabled = true;
+        document.getElementById('btnUp').disabled = true;
+        document.getElementById('btnDown').disabled = true;
+        document.getElementById('btnLeft').disabled = true;
+        document.getElementById('btnRight').disabled = true;
         
         // 重置游戏状态
         this.playerPos = { row: 6, col: 2 };
@@ -936,10 +1473,15 @@ class ZombieGame {
         this.playerMovesSinceContact = 0;
         this.isRecoveryPeriod = false;
         
+        // 重置爱心重生计时器
+        Object.values(this.heartRespawnTimers).forEach(timer => clearTimeout(timer));
+        this.heartRespawnTimers = {};
+        
         // 重置任务和僵尸
         this.missions = [];
         this.zombies = [];
         this.generateZombies(5);
+        this.generateHearts();
         
         // 更新UI
         this.updateStats();

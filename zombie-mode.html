@@ -556,6 +556,83 @@
             }
         }
 
+        /* 爱心道具样式 */
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            z-index: 95;
+            transition: all 0.3s;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+            animation: heart-pulse 1.5s infinite;
+        }
+
+        @keyframes heart-pulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        /* 僵尸速度提升状态 */
+        .zombie.speed-boost {
+            animation: zombie-speed-boost 0.5s infinite alternate;
+        }
+
+        @keyframes zombie-speed-boost {
+            0% {
+                transform: translateY(0) scale(1);
+                filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5)) brightness(1.2);
+            }
+            100% {
+                transform: translateY(-4px) scale(1.1);
+                filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5)) brightness(1.4);
+            }
+        }
+
+        /* 僵尸获得爱心状态 */
+        .zombie.powered-up {
+            animation: zombie-powered-up 1s infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.8)) brightness(1.5);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        @keyframes zombie-powered-up {
+            0% {
+                transform: scale(2.0) rotate(-5deg);
+            }
+            25% {
+                transform: scale(2.0) rotate(5deg);
+            }
+            50% {
+                transform: scale(2.0) rotate(-5deg);
+            }
+            75% {
+                transform: scale(2.0) rotate(5deg);
+            }
+            100% {
+                transform: scale(2.0) rotate(-5deg);
+            }
+        }
+
+        /* 僵尸效果结束动画 */
+        .zombie.powered-up.effect-ending {
+            animation: zombie-effect-ending 0.5s ease-out forwards;
+        }
+
+        @keyframes zombie-effect-ending {
+            0% {
+                transform: scale(2.0);
+                filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.8)) brightness(1.5);
+            }
+            100% {
+                transform: scale(1.0);
+                filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5)) brightness(1);
+            }
+        }
+
         /* 建筑悬停显示英文 */
         .grid-cell.building {
             position: relative;
@@ -688,6 +765,7 @@
         .control-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
             gap: 10px;
             max-width: 300px;
             margin: 0 auto;
@@ -710,7 +788,13 @@
             gap: 6px;
         }
 
-        .control-btn:hover {
+        .control-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .control-btn:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
         }
@@ -1096,8 +1180,8 @@
     <div class="game-container">
         <!-- 游戏头部 -->
         <div class="game-header">
-            <!-- 版本 version7.2 -->
-            <div class="version-info" style="position: absolute; top: 10px; right: 30px; font-size: 14px; color: rgba(255, 255, 255, 0.8); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);">version7.2</div>
+            <!-- 版本 version7.3 -->
+            <div class="version-info" style="position: absolute; top: 10px; right: 30px; font-size: 14px; color: rgba(255, 255, 255, 0.8); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);">version7.3</div>
             <div class="game-title">
                 🧟 Direction Teaching Game - Zombie Mode 方向指导教学游戏 - 僵尸模式
             </div>
@@ -1109,6 +1193,10 @@
                 <div class="stat-item">
                     <span class="stat-label">分数 Score</span>
                     <span id="currentScore" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">最高分 High Score</span>
+                    <span id="highScoreDisplay" class="stat-value">0</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">步数 Steps</span>
@@ -1155,17 +1243,23 @@
                 <div class="panel-card">
                     <h3>🎮 方向控制 Direction Control</h3>
                     <div class="control-grid">
-                        <button id="btnTurnLeft" class="control-btn" disabled>
-                            <div class="icon">⬅️</div>
-                            <div class="label">左转 Turn Left</div>
-                        </button>
-                        <button id="btnGoStraight" class="control-btn forward" disabled>
+                        <div></div>
+                        <button id="btnUp" class="control-btn" disabled>
                             <div class="icon">⬆️</div>
-                            <div class="label">前进 Go Straight</div>
+                            <div class="label">向上 Up</div>
                         </button>
-                        <button id="btnTurnRight" class="control-btn" disabled>
+                        <div></div>
+                        <button id="btnLeft" class="control-btn" disabled>
+                            <div class="icon">⬅️</div>
+                            <div class="label">向左 Left</div>
+                        </button>
+                        <button id="btnDown" class="control-btn" disabled>
+                            <div class="icon">⬇️</div>
+                            <div class="label">向下 Down</div>
+                        </button>
+                        <button id="btnRight" class="control-btn" disabled>
                             <div class="icon">➡️</div>
-                            <div class="label">右转 Turn Right</div>
+                            <div class="label">向右 Right</div>
                         </button>
                     </div>
                 </div>
