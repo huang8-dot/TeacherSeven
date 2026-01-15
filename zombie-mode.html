@@ -1295,13 +1295,13 @@
                 <div id="missionList" class="mission-list"></div>
             </div>
         </div>
+    </div>
 
-        <!-- 浮动反馈按钮 -->
-        <div class="feedback-float-btn" id="feedbackBtn" onclick="showFeedback(event)" title="反馈 Feedback" draggable="false">
-            <div class="feedback-btn-content">
-                <div class="feedback-btn-icon">💬</div>
-                <div class="feedback-btn-text">反馈</div>
-            </div>
+    <!-- 浮动反馈按钮 -->
+    <div class="feedback-float-btn" id="feedbackBtn" onclick="showFeedback(event)" title="反馈 Feedback" draggable="false">
+        <div class="feedback-btn-content">
+            <div class="feedback-btn-icon">💬</div>
+            <div class="feedback-btn-text">反馈</div>
         </div>
     </div>
 
@@ -1342,19 +1342,19 @@
 
     <style>
         .feedback-float-btn {
-            position: absolute;
+            position: fixed;
             right: 20px;
             top: 80px;
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
             color: white;
             border: none;
             border-radius: 50%;
             font-size: 16px;
             font-weight: bold;
             cursor: move;
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
             z-index: 100;
             display: flex;
             align-items: center;
@@ -1368,11 +1368,17 @@
             touch-action: none;
         }
 
+        .feedback-float-btn:hover {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5);
+            transform: scale(1.05);
+        }
+
         .feedback-float-btn.dragging {
             opacity: 0.9;
             transform: scale(1.1);
             box-shadow: 0 8px 25px rgba(46, 204, 113, 0.6);
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
             transition: background 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
         }
 
@@ -1595,7 +1601,6 @@
         let dragStartTime = 0;
 
         const feedbackBtn = document.getElementById('feedbackBtn');
-        const gameContainer = document.querySelector('.game-container');
 
         function showFeedback(event) {
             if (!isClick) return;
@@ -1630,6 +1635,39 @@
         let animationFrameId = null;
         let targetX = 0;
         let targetY = 0;
+
+        // 从localStorage加载保存的位置
+        function loadSavedPosition() {
+            const savedPos = localStorage.getItem('feedbackButtonPosition');
+            if (savedPos) {
+                try {
+                    const pos = JSON.parse(savedPos);
+                    feedbackBtn.style.left = pos.x + 'px';
+                    feedbackBtn.style.top = pos.y + 'px';
+                    feedbackBtn.style.right = 'auto';
+                    
+                    // 更新偏移量
+                    xOffset = pos.x;
+                    yOffset = pos.y;
+                    initialX = pos.x;
+                    initialY = pos.y;
+                } catch (e) {
+                    console.error('Failed to load saved position:', e);
+                }
+            }
+        }
+
+        // 保存位置到localStorage
+        function savePosition() {
+            const pos = {
+                x: currentX,
+                y: currentY
+            };
+            localStorage.setItem('feedbackButtonPosition', JSON.stringify(pos));
+        }
+
+        // 初始化时加载保存的位置
+        loadSavedPosition();
 
         function dragStart(e) {
             if (e.type === 'touchstart') {
@@ -1674,6 +1712,9 @@
                     cancelAnimationFrame(animationFrameId);
                     animationFrameId = null;
                 }
+                
+                // 保存位置到localStorage
+                savePosition();
                 
                 // 计算拖拽时间，判断是否为点击
                 const dragDuration = Date.now() - dragStartTime;
@@ -1753,20 +1794,18 @@
         }
 
         function setTranslate(xPos, yPos, el) {
-            // 获取容器边界
-            const containerRect = gameContainer.getBoundingClientRect();
+            // 获取视口边界
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
             const btnRect = el.getBoundingClientRect();
 
-            // 计算按钮相对于容器的位置
-            const relativeX = btnRect.left - containerRect.left + xPos;
-            const relativeY = btnRect.top - containerRect.top + yPos;
+            // 限制按钮在视口内
+            const maxX = viewportWidth - btnRect.width;
+            const maxY = viewportHeight - btnRect.height;
 
-            // 限制按钮在容器内
-            const maxX = containerRect.width - btnRect.width;
-            const maxY = containerRect.height - btnRect.height;
-
-            const constrainedX = Math.max(0, Math.min(relativeX, maxX));
-            const constrainedY = Math.max(0, Math.min(relativeY, maxY));
+            // 允许拖动到任何位置，但保持在视口内
+            const constrainedX = Math.max(0, Math.min(xPos, maxX));
+            const constrainedY = Math.max(0, Math.min(yPos, maxY));
 
             // 使用transform实现平滑移动
             el.style.right = 'auto';
