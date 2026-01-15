@@ -1295,6 +1295,14 @@
                 <div id="missionList" class="mission-list"></div>
             </div>
         </div>
+
+        <!-- 浮动反馈按钮 -->
+        <div class="feedback-float-btn" onclick="showFeedback()" title="反馈 Feedback">
+            <div class="feedback-btn-content">
+                <div class="feedback-btn-icon">💬</div>
+                <div class="feedback-btn-text">反馈</div>
+            </div>
+        </div>
     </div>
 
     <!-- 游戏结束弹窗 -->
@@ -1315,14 +1323,6 @@
     <!-- Toast提示 -->
     <div id="gameToast" class="game-toast"></div>
 
-    <!-- 浮动反馈按钮 -->
-    <div class="feedback-float-btn" onclick="showFeedback()" title="反馈 Feedback">
-        <div class="feedback-btn-content">
-            <div class="feedback-btn-icon">💬</div>
-            <div class="feedback-btn-text">反馈</div>
-        </div>
-    </div>
-
     <!-- 反馈弹窗 -->
     <div id="feedbackModal" class="feedback-modal">
         <div class="feedback-content">
@@ -1342,7 +1342,7 @@
 
     <style>
         .feedback-float-btn {
-            position: fixed;
+            position: absolute;
             right: 20px;
             top: 80px;
             width: 80px;
@@ -1355,7 +1355,7 @@
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
-            z-index: 100000;
+            z-index: 100;
             display: flex;
             align-items: center;
             justify-content: center;
