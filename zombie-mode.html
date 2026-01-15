@@ -1369,10 +1369,11 @@
         }
 
         .feedback-float-btn.dragging {
-            opacity: 0.8;
+            opacity: 0.9;
             transform: scale(1.1);
-            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.6);
-            transition: none;
+            box-shadow: 0 8px 25px rgba(46, 204, 113, 0.6);
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            transition: background 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
         }
 
         .feedback-btn-content {
@@ -1621,6 +1622,15 @@
         document.addEventListener('touchend', dragEnd);
         document.addEventListener('touchmove', drag, { passive: false });
 
+        // 速度控制参数
+        const MAX_SPEED = 50; // 最大移动速度（像素/帧）
+        let lastX = 0;
+        let lastY = 0;
+        let lastTime = Date.now();
+        let animationFrameId = null;
+        let targetX = 0;
+        let targetY = 0;
+
         function dragStart(e) {
             if (e.type === 'touchstart') {
                 initialX = e.touches[0].clientX - xOffset;
@@ -1635,6 +1645,19 @@
                 isClick = true;
                 dragStartTime = Date.now();
                 feedbackBtn.classList.add('dragging');
+                
+                // 初始化速度控制
+                lastX = initialX;
+                lastY = initialY;
+                lastTime = Date.now();
+                targetX = initialX;
+                targetY = initialY;
+                
+                // 开始动画循环
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                }
+                animate();
             }
         }
 
@@ -1645,6 +1668,12 @@
             if (isDragging) {
                 isDragging = false;
                 feedbackBtn.classList.remove('dragging');
+                
+                // 停止动画循环
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
                 
                 // 计算拖拽时间，判断是否为点击
                 const dragDuration = Date.now() - dragStartTime;
@@ -1669,14 +1698,58 @@
                     clientY = e.clientY;
                 }
 
-                currentX = clientX - initialX;
-                currentY = clientY - initialY;
+                // 更新目标位置
+                targetX = clientX - initialX;
+                targetY = clientY - initialY;
+            }
+        }
 
+        function animate() {
+            if (!isDragging) return;
+
+            const currentTime = Date.now();
+            const deltaTime = currentTime - lastTime;
+            
+            if (deltaTime > 0) {
+                // 计算当前速度
+                const deltaX = targetX - lastX;
+                const deltaY = targetY - lastY;
+                
+                // 限制速度
+                const maxDelta = MAX_SPEED * deltaTime / 16; // 假设60fps
+                
+                let newX = lastX;
+                let newY = lastY;
+                
+                if (Math.abs(deltaX) > maxDelta) {
+                    newX = lastX + (deltaX > 0 ? maxDelta : -maxDelta);
+                } else {
+                    newX = targetX;
+                }
+                
+                if (Math.abs(deltaY) > maxDelta) {
+                    newY = lastY + (deltaY > 0 ? maxDelta : -maxDelta);
+                } else {
+                    newY = targetY;
+                }
+                
+                // 平滑插值
+                const smoothing = 0.3;
+                currentX = lastX + (newX - lastX) * smoothing;
+                currentY = lastY + (newY - lastY) * smoothing;
+                
+                lastX = currentX;
+                lastY = currentY;
+                lastTime = currentTime;
+                
                 xOffset = currentX;
                 yOffset = currentY;
 
                 setTranslate(currentX, currentY, feedbackBtn);
             }
+            
+            // 继续动画循环
+            animationFrameId = requestAnimationFrame(animate);
         }
 
         function setTranslate(xPos, yPos, el) {
@@ -1695,6 +1768,7 @@
             const constrainedX = Math.max(0, Math.min(relativeX, maxX));
             const constrainedY = Math.max(0, Math.min(relativeY, maxY));
 
+            // 使用transform实现平滑移动
             el.style.right = 'auto';
             el.style.left = constrainedX + 'px';
             el.style.top = constrainedY + 'px';
