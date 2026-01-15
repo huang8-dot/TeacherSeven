@@ -1295,13 +1295,13 @@
                 <div id="missionList" class="mission-list"></div>
             </div>
         </div>
-    </div>
 
-    <!-- 浮动反馈按钮 -->
-    <div class="feedback-float-btn" id="feedbackBtn" onclick="showFeedback(event)" title="反馈 Feedback" draggable="false">
-        <div class="feedback-btn-content">
-            <div class="feedback-btn-icon">💬</div>
-            <div class="feedback-btn-text">反馈</div>
+        <!-- 浮动反馈按钮 -->
+        <div class="feedback-float-btn" id="feedbackBtn" onclick="showFeedback(event)" title="反馈 Feedback" draggable="false">
+            <div class="feedback-btn-content">
+                <div class="feedback-btn-icon">💬</div>
+                <div class="feedback-btn-text">反馈</div>
+            </div>
         </div>
     </div>
 
@@ -1342,7 +1342,7 @@
 
     <style>
         .feedback-float-btn {
-            position: fixed;
+            position: absolute;
             right: 20px;
             top: 80px;
             width: 80px;
@@ -1359,7 +1359,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
+            transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
             animation: pulse-feedback 2s infinite;
             user-select: none;
             -webkit-user-select: none;
@@ -1371,7 +1371,6 @@
         .feedback-float-btn:hover {
             background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
             box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5);
-            transform: scale(1.05);
         }
 
         .feedback-float-btn.dragging {
@@ -1601,6 +1600,7 @@
         let dragStartTime = 0;
 
         const feedbackBtn = document.getElementById('feedbackBtn');
+        const gameContainer = document.querySelector('.game-container');
 
         function showFeedback(event) {
             if (!isClick) return;
@@ -1642,15 +1642,23 @@
             if (savedPos) {
                 try {
                     const pos = JSON.parse(savedPos);
-                    feedbackBtn.style.left = pos.x + 'px';
-                    feedbackBtn.style.top = pos.y + 'px';
+                    const containerRect = gameContainer.getBoundingClientRect();
+                    const btnRect = feedbackBtn.getBoundingClientRect();
+                    
+                    const maxX = containerRect.width - btnRect.width;
+                    const maxY = containerRect.height - btnRect.height;
+                    
+                    const constrainedX = Math.max(0, Math.min(pos.x, maxX));
+                    const constrainedY = Math.max(0, Math.min(pos.y, maxY));
+                    
+                    feedbackBtn.style.left = constrainedX + 'px';
+                    feedbackBtn.style.top = constrainedY + 'px';
                     feedbackBtn.style.right = 'auto';
                     
-                    // 更新偏移量
-                    xOffset = pos.x;
-                    yOffset = pos.y;
-                    initialX = pos.x;
-                    initialY = pos.y;
+                    xOffset = constrainedX;
+                    yOffset = constrainedY;
+                    initialX = constrainedX;
+                    initialY = constrainedY;
                 } catch (e) {
                     console.error('Failed to load saved position:', e);
                 }
@@ -1794,20 +1802,15 @@
         }
 
         function setTranslate(xPos, yPos, el) {
-            // 获取视口边界
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
+            const containerRect = gameContainer.getBoundingClientRect();
             const btnRect = el.getBoundingClientRect();
 
-            // 限制按钮在视口内
-            const maxX = viewportWidth - btnRect.width;
-            const maxY = viewportHeight - btnRect.height;
+            const maxX = containerRect.width - btnRect.width;
+            const maxY = containerRect.height - btnRect.height;
 
-            // 允许拖动到任何位置，但保持在视口内
             const constrainedX = Math.max(0, Math.min(xPos, maxX));
             const constrainedY = Math.max(0, Math.min(yPos, maxY));
 
-            // 使用transform实现平滑移动
             el.style.right = 'auto';
             el.style.left = constrainedX + 'px';
             el.style.top = constrainedY + 'px';
