@@ -1316,8 +1316,11 @@
     <div id="gameToast" class="game-toast"></div>
 
     <!-- 浮动反馈按钮 -->
-    <div class="feedback-float-btn" onclick="showFeedback()">
-        反馈
+    <div class="feedback-float-btn" onclick="showFeedback()" title="反馈 Feedback">
+        <div class="feedback-btn-content">
+            <div class="feedback-btn-icon">💬</div>
+            <div class="feedback-btn-text">反馈</div>
+        </div>
     </div>
 
     <!-- 反馈弹窗 -->
@@ -1341,9 +1344,10 @@
         .feedback-float-btn {
             position: fixed;
             right: 20px;
-            bottom: 20px;
-            width: 60px;
-            height: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 80px;
+            height: 80px;
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             color: white;
             border: none;
@@ -1360,17 +1364,36 @@
             animation: pulse-feedback 2s infinite;
         }
 
+        .feedback-btn-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .feedback-btn-icon {
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .feedback-btn-text {
+            font-size: 14px;
+            line-height: 1;
+            font-weight: bold;
+        }
+
         .feedback-float-btn:hover {
-            transform: scale(1.1);
+            transform: translateY(-50%) scale(1.1);
             box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
         }
 
         @keyframes pulse-feedback {
             0%, 100% {
-                transform: scale(1);
+                transform: translateY(-50%) scale(1);
             }
             50% {
-                transform: scale(1.05);
+                transform: translateY(-50%) scale(1.05);
             }
         }
 
@@ -1476,11 +1499,17 @@
 
         @media (max-width: 768px) {
             .feedback-float-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 14px;
+                width: 70px;
+                height: 70px;
                 right: 15px;
-                bottom: 15px;
+            }
+
+            .feedback-btn-icon {
+                font-size: 20px;
+            }
+
+            .feedback-btn-text {
+                font-size: 12px;
             }
 
             .feedback-content {
@@ -1500,11 +1529,17 @@
 
         @media (max-width: 480px) {
             .feedback-float-btn {
-                width: 45px;
-                height: 45px;
-                font-size: 12px;
+                width: 60px;
+                height: 60px;
                 right: 10px;
-                bottom: 10px;
+            }
+
+            .feedback-btn-icon {
+                font-size: 18px;
+            }
+
+            .feedback-btn-text {
+                font-size: 11px;
             }
 
             .feedback-content {
