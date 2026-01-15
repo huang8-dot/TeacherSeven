@@ -1181,7 +1181,11 @@
         <!-- 游戏头部 -->
         <div class="game-header">
             <!-- 版本 version7.3 -->
-            <div class="version-info" style="position: absolute; top: 10px; right: 30px; font-size: 14px; color: rgba(255, 255, 255, 0.8); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);">version7.3</div>
+            <div class="version-info" 
+            style="position: absolute; top: 10px; right: 30px; font-size: 14px; color: rgba(255, 255, 255, 0.8); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); cursor: pointer; transition: color 0.3s;"
+            onclick="window.location.href='update-history.html'"
+            onmouseover="this.style.color='rgba(255, 255, 255, 1)';"
+            onmouseout="this.style.color='rgba(255, 255, 255, 0.8)';">version7.3</div>
             <div class="game-title">
                 🧟 Direction Teaching Game - Zombie Mode 方向指导教学游戏 - 僵尸模式
             </div>
@@ -1310,6 +1314,228 @@
 
     <!-- Toast提示 -->
     <div id="gameToast" class="game-toast"></div>
+
+    <!-- 浮动反馈按钮 -->
+    <div class="feedback-float-btn" onclick="showFeedback()">
+        反馈
+    </div>
+
+    <!-- 反馈弹窗 -->
+    <div id="feedbackModal" class="feedback-modal">
+        <div class="feedback-content">
+            <div class="feedback-header">
+                <h3>💬 反馈 Feedback</h3>
+                <button class="feedback-close" onclick="closeFeedback()">✕</button>
+            </div>
+            <div class="feedback-body">
+                <p>感谢您的反馈！请通过以下邮箱联系我们：</p>
+                <p class="feedback-email">
+                    <a href="mailto:huangameing@163.com">huangameing@163.com</a>
+                </p>
+                <p class="feedback-note">点击邮箱地址将打开您的默认邮件客户端</p>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .feedback-float-btn {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            animation: pulse-feedback 2s infinite;
+        }
+
+        .feedback-float-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+        }
+
+        @keyframes pulse-feedback {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .feedback-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feedback-modal.active {
+            display: flex;
+        }
+
+        .feedback-content {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 3px solid rgba(231, 76, 60, 0.5);
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+        }
+
+        .feedback-header h3 {
+            color: #e74c3c;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .feedback-close {
+            background: rgba(231, 76, 60, 0.3);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .feedback-close:hover {
+            background: rgba(231, 76, 60, 0.6);
+            transform: rotate(90deg);
+        }
+
+        .feedback-body {
+            text-align: center;
+        }
+
+        .feedback-body p {
+            color: white;
+            font-size: 16px;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+
+        .feedback-email {
+            margin: 20px 0;
+        }
+
+        .feedback-email a {
+            color: #e74c3c;
+            font-size: 20px;
+            font-weight: bold;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: rgba(231, 76, 60, 0.2);
+            border-radius: 10px;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .feedback-email a:hover {
+            background: rgba(231, 76, 60, 0.4);
+            transform: scale(1.05);
+        }
+
+        .feedback-note {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .feedback-float-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 14px;
+                right: 15px;
+                bottom: 15px;
+            }
+
+            .feedback-content {
+                padding: 20px;
+                max-width: 90%;
+            }
+
+            .feedback-header h3 {
+                font-size: 20px;
+            }
+
+            .feedback-email a {
+                font-size: 16px;
+                padding: 8px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .feedback-float-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 12px;
+                right: 10px;
+                bottom: 10px;
+            }
+
+            .feedback-content {
+                padding: 15px;
+            }
+
+            .feedback-header h3 {
+                font-size: 18px;
+            }
+
+            .feedback-body p {
+                font-size: 14px;
+            }
+        }
+    </style>
+
+    <script>
+        function showFeedback() {
+            document.getElementById('feedbackModal').classList.add('active');
+        }
+
+        function closeFeedback() {
+            document.getElementById('feedbackModal').classList.remove('active');
+        }
+
+        document.getElementById('feedbackModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFeedback();
+            }
+        });
+    </script>
 
     <script src="zombie-mode.js"></script>
 </body>

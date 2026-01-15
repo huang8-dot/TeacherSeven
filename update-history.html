@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>更新历史 Update History</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', '微软雅黑', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(
+                    circle,
+                    rgba(255, 255, 255, 0.1) 1px,
+                    transparent 1px
+                ),
+                radial-gradient(circle, rgba(255, 0, 0, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px, 80px 80px;
+            background-position: 0 0, 40px 40px;
+            animation: float 20s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(-50px, -50px);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 36px;
+            color: #e74c3c;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .header p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+        }
+
+        .update-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .update-item {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #e74c3c;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .update-item:hover {
+            transform: translateX(5px);
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 5px 20px rgba(231, 76, 60, 0.3);
+        }
+
+        .update-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .update-version {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .update-version::before {
+            content: '📌';
+        }
+
+        .update-date {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(231, 76, 60, 0.2);
+            padding: 5px 15px;
+            border-radius: 15px;
+        }
+
+        .update-content {
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .update-content h4 {
+            color: #e74c3c;
+            margin: 15px 0 10px 0;
+            font-size: 18px;
+        }
+
+        .update-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .update-content li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .update-content li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .update-content strong {
+            color: #e74c3c;
+        }
+
+        .feature-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .header p {
+                font-size: 14px;
+            }
+
+            .update-item {
+                padding: 20px;
+            }
+
+            .update-version {
+                font-size: 20px;
+            }
+
+            .update-content h4 {
+                font-size: 16px;
+            }
+
+            .update-content li {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .update-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .update-item {
+                padding: 15px;
+            }
+
+            .update-version {
+                font-size: 18px;
+            }
+
+            .update-content li {
+                font-size: 13px;
+                padding-left: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📜 更新历史 Update History</h1>
+            <p>查看游戏的最新更新和改进 View the latest updates and improvements</p>
+            <a href="zombie-mode.html" class="back-btn">🏠 返回游戏 Return to Game</a>
+        </div>
+
+        <div class="update-list">
+            <div class="update-item">
+                <div class="update-header">
+                    <div class="update-version">Version 7.3 <span class="feature-tag">最新 Latest</span></div>
+                    <div class="update-date">2026-01-15</div>
+                </div>
+                <div class="update-content">
+                    <h4>🎮 核心功能优化 Core Features Optimization</h4>
+                    <ul>
+                        <li><strong>方向控制优化：</strong>将转向+前进模式改为直接方向控制（向上/向下/向左/向右），提升操作精确性和用户体验</li>
+                        <li><strong>爱心刷新机制：</strong>实现任务完成后自动刷新爱心图标，带有平滑的淡入淡出过渡效果</li>
+                        <li><strong>僵尸行为增强：</strong>僵尸获得爱心后加速时间延长至7秒，并立即启用追击状态抓捕玩家</li>
+                    </ul>
+                    <h4>🧟 僵尸AI升级 Zombie AI Upgrade</h4>
+                    <ul>
+                        <li><strong>目标优先级系统：</strong>实现三级目标优先级（玩家>爱心>随机移动），优化僵尸决策逻辑</li>
+                        <li><strong>爱心效果增强：</strong>获得爱心后僵尸体型增大至2倍，移动速度提升50%，检测范围扩大至5格</li>
+                        <li><strong>即时追击：</strong>僵尸获得爱心后立即中断当前行为并优先抓捕玩家</li>
+                    </ul>
+                    <h4>💾 数据持久化 Data Persistence</h4>
+                    <ul>
+                        <li><strong>浏览器缓存存储：</strong>使用localStorage存储用户游戏数据（游戏次数、胜利次数、失败次数、最高分等）</li>
+                        <li><strong>实时更新：</strong>玩家死亡后自动更新统计数据，刷新页面数据不丢失</li>
+                    </ul>
+                    <h4>🎨 界面改进 UI Improvements</h4>
+                    <ul>
+                        <li><strong>版本信息交互：</strong>版本号可点击跳转到更新历史页面，带有悬停效果</li>
+                        <li><strong>浮动反馈按钮：</strong>添加右侧浮动反馈按钮，点击显示邮箱地址并支持邮件客户端调用</li>
+                        <li><strong>响应式设计：</strong>优化移动端和平板设备的显示效果</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="update-item">
+                <div class="update-header">
+                    <div class="update-version">Version 7.2</div>
+                    <div class="update-date">2026-01-14</div>
+                </div>
+                <div class="update-content">
+                    <h4>❤️ 爱心道具系统 Heart Item System</h4>
+                    <ul>
+                        <li><strong>随机生成：</strong>在游戏道路区域内随机生成2个爱心道具，避免障碍物区域</li>
+                        <li><strong>玩家交互：</strong>玩家与爱心碰撞增加20点生命值，爱心消失</li>
+                        <li><strong>僵尸交互：</strong>僵尸与爱心碰撞获得速度提升效果，持续5秒，爱心消失</li>
+                        <li><strong>视觉效果：</strong>爱心道具带有脉冲动画效果，获取时有明显视觉反馈</li>
+                    </ul>
+                    <h4>🧟 僵尸行为优化 Zombie Behavior Optimization</h4>
+                    <ul>
+                        <li><strong>爱心追踪：</strong>僵尸会主动追踪并获取爱心道具，优先级低于玩家</li>
+                        <li><strong>体型变化：</strong>获得爱心后僵尸体型增大至原始大小的2倍</li>
+                        <li><strong>状态管理：</strong>实现完整的状态管理系统（普通→获得爱心→效果结束→恢复普通）</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="update-item">
+                <div class="update-header">
+                    <div class="update-version">Version 7.1</div>
+                    <div class="update-date">2026-01-13</div>
+                </div>
+                <div class="update-content">
+                    <h4>🎵 音频系统 Audio System</h4>
+                    <ul>
+                        <li><strong>背景音乐：</strong>添加恐怖背景音乐，支持手动开关控制</li>
+                        <li><strong>页面抖动：</strong>被僵尸抓住时触发页面抖动效果，增强游戏体验</li>
+                    </ul>
+                    <h4>📱 响应式优化 Responsive Optimization</h4>
+                    <ul>
+                        <li><strong>移动端适配：</strong>优化手机和平板设备的显示效果，确保完整显示地图和控制按钮</li>
+                        <li><strong>界面简化：</strong>在小屏幕设备上隐藏非关键信息，优先显示游戏核心内容</li>
+                    </ul>
+                    <h4>🌐 多语言支持 Multilingual Support</h4>
+                    <ul>
+                        <li><strong>双语界面：</strong>所有中文内容添加英文翻译，提升国际化体验</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="update-item">
+                <div class="update-header">
+                    <div class="update-version">Version 7.0</div>
+                    <div class="update-date">2026-01-12</div>
+                </div>
+                <div class="update-content">
+                    <h4>🧟 僵尸模式上线 Zombie Mode Launch</h4>
+                    <ul>
+                        <li><strong>全新模式：</strong>发布僵尸挑战模式，增加游戏难度和趣味性</li>
+                        <li><strong>12x12地图：</strong>使用更大的地图网格，提供更丰富的游戏体验</li>
+                        <li><strong>生命值系统：</strong>玩家初始生命值100，与僵尸碰撞减少20点</li>
+                        <li><strong>僵尸AI：</strong>僵尸会追踪玩家，碰撞后停止追击，3次移动后恢复</li>
+                    </ul>
+                    <h4>🎯 任务系统 Mission System</h4>
+                    <ul>
+                        <li><strong>连续任务：</strong>5个连续任务，按顺序完成才能获胜</li>
+                        <li><strong>目标导航：</strong>显示目标地点名称、英文名称和距离</li>
+                        <li><strong>方向指引：</strong>显示到达目标的方向箭头和文字提示</li>
+                    </ul>
+                    <h4>🚧 障碍物系统 Obstacle System</h4>
+                    <ul>
+                        <li><strong>施工障碍：</strong>使用🚧图标阻挡某些路径</li>
+                        <li><strong>单行道：</strong>部分道路为单行道，只能按指定方向通行</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
