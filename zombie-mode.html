@@ -1561,13 +1561,13 @@
         }
 
         .feedback-email a {
-            color: #e74c3c;
+            color: #ffffff;
             font-size: 20px;
             font-weight: bold;
             text-decoration: none;
-            padding: 10px 20px;
-            background: rgba(231, 76, 60, 0.2);
-            border-radius: 10px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border-radius: 12px;
             display: inline-flex;
             align-items: center;
             gap: 10px;
@@ -1576,6 +1576,7 @@
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid transparent;
             background-clip: padding-box;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
         }
 
         .feedback-email a::before {
@@ -1585,9 +1586,9 @@
             left: -2px;
             right: -2px;
             bottom: -2px;
-            background: linear-gradient(45deg, #e74c3c, #c0392b, #e74c3c, #c0392b);
+            background: linear-gradient(45deg, #3498db, #2980b9, #1abc9c, #3498db);
             background-size: 400% 400%;
-            border-radius: 12px;
+            border-radius: 14px;
             z-index: -1;
             animation: gradient-border 3s ease infinite;
         }
@@ -1605,9 +1606,9 @@
         }
 
         .feedback-email a:hover {
-            background: rgba(231, 76, 60, 0.4);
+            background: linear-gradient(135deg, #2980b9 0%, #1a5276 100%);
             transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.5);
         }
 
         .feedback-email a:hover .email-icon {
@@ -1669,6 +1670,7 @@
             border-radius: 50%;
             animation: blink-badge 2s ease-in-out infinite;
             box-shadow: 0 0 10px rgba(231, 76, 60, 0.8);
+            border: 2px solid #ffffff;
         }
 
         @keyframes blink-badge {
