@@ -520,8 +520,7 @@ class ZombieGame {
             map[row][8] = { type: 'road', vertical: true };
         }
         
-        // 添加单行道
-        map[1][2] = { type: 'road', vertical: true, oneway: true, onewayDir: 'up' };
+        // 添加单行道（学校右侧道路移除单行道限制，方便玩家进出）
         map[3][2] = { type: 'road', vertical: true, oneway: true, onewayDir: 'up' };
         map[4][2] = { type: 'road', vertical: true, oneway: true, onewayDir: 'up' };
         
