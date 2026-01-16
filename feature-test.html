@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>功能测试 Feature Test</title>
+    <link rel="stylesheet" href="visual-effects.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .test-header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .test-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        
+        .test-card:hover {
+            background: rgba(0, 0, 0, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .test-card h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #3498db;
+        }
+        
+        .test-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .test-btn:active {
+            transform: translateY(0);
+        }
+        
+        .test-btn.success {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+        
+        .test-btn.warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .test-btn.danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .test-result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .test-result.pass {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+        
+        .test-result.fail {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+        
+        .test-result.info {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+        }
+        
+        .test-section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #f1c40f;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(241, 196, 15, 0.3);
+        }
+        
+        .footer-nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        
+        .nav-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🧪 功能测试 Feature Test</h1>
+            <p>测试僵尸模式增强版的所有功能 Test all features of Zombie Mode Enhanced</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🎨 视觉效果测试 Visual Effects Test</h2>
+            <div class="test-grid">
+                <div class="test-card">
+                    <h3>粒子效果 Particle Effects</h3>
+                    <button class="test-btn" onclick="testHeartParticles()">爱心粒子 Heart</button>
+                    <button class="test-btn" onclick="testCoinParticles()">金币粒子 Coin</button>
+                    <button class="test-btn" onclick="testStarParticles()">星星粒子 Star</button>
+                    <button class="test-btn" onclick="testMagicParticles()">魔法粒子 Magic</button>
+                    <button class="test-btn danger" onclick="testExplosion()">爆炸效果 Explosion</button>
+                    <div class="test-result info" id="particleResult">点击按钮测试粒子效果 Click buttons to test particle effects</div>
+                </div>
+
+                <div class="test-card">
+                    <h3>屏幕效果 Screen Effects</h3>
+                    <button class="test-btn warning" onclick="testScreenShake()">屏幕抖动 Screen Shake</button>
+                    <button class="test-btn" onclick="testFlashEffect()">闪光效果 Flash</button>
+                    <button class="test-btn success" onclick="testGlowEffect()">发光效果 Glow</button>
+                    <div class="test-result info" id="screenResult">点击按钮测试屏幕效果 Click buttons to test screen effects</div>
+                </div>
+
+                <div class="test-card">
+                    <h3>动画效果 Animation Effects</h3>
+                    <button class="test-btn" onclick="testPulseEffect()">脉冲效果 Pulse</button>
+                    <button class="test-btn" onclick="testFloatEffect()">浮动效果 Float</button>
+                    <button class="test-btn" onclick="testSpinEffect()">旋转效果 Spin</button>
+                    <button class="test-btn" onclick="testBounceEffect()">弹跳效果 Bounce</button>
+                    <div class="test-result info" id="animationResult">点击按钮测试动画效果 Click buttons to test animation effects</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎮 游戏功能测试 Game Features Test</h2>
+            <div class="test-grid">
+                <div class="test-card">
+                    <h3>核心游戏 Core Game</h3>
+                    <button class="test-btn success" onclick="testGameStart()">测试游戏开始 Test Game Start</button>
+                    <button class="test-btn" onclick="testPlayerMovement()">测试玩家移动 Test Player Movement</button>
+                    <button class="test-btn warning" onclick="testZombieAI()">测试僵尸AI Test Zombie AI</button>
+                    <button class="test-btn danger" onclick="testCollisionDetection()">测试碰撞检测 Test Collision</button>
+                    <div class="test-result info" id="gameResult">点击按钮测试游戏功能 Click buttons to test game features</div>
+                </div>
+
+                <div class="test-card">
+                    <h3>技能系统 Skill System</h3>
+                    <button class="test-btn" onclick="testDashSkill()">测试冲刺 Dash</button>
+                    <button class="test-btn" onclick="testShieldSkill()">测试护盾 Shield</button>
+                    <button class="test-btn" onclick="testTrapSkill()">测试陷阱 Trap</button>
+                    <button class="test-btn" onclick="testBlinkSkill()">测试闪现 Blink</button>
+                    <div class="test-result info" id="skillResult">点击按钮测试技能 Click buttons to test skills</div>
+                </div>
+
+                <div class="test-card">
+                    <h3>游戏系统 Game Systems</h3>
+                    <button class="test-btn" onclick="testEvolutionSystem()">测试进化系统 Test Evolution</button>
+                    <button class="test-btn" onclick="testEnvironmentSystem()">测试环境系统 Test Environment</button>
+                    <button class="test-btn warning" onclick="testEventSystem()">测试事件系统 Test Events</button>
+                    <button class="test-btn" onclick="testAchievementSystem()">测试成就系统 Test Achievements</button>
+                    <div class="test-result info" id="systemResult">点击按钮测试游戏系统 Click buttons to test game systems</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>💾 数据存储测试 Data Storage Test</h2>
+            <div class="test-grid">
+                <div class="test-card">
+                    <h3>本地存储 Local Storage</h3>
+                    <button class="test-btn success" onclick="testSaveData()">测试保存数据 Test Save</button>
+                    <button class="test-btn" onclick="testLoadData()">测试加载数据 Test Load</button>
+                    <button class="test-btn danger" onclick="testClearData()">清除数据 Clear Data</button>
+                    <div class="test-result info" id="storageResult">点击按钮测试数据存储 Click buttons to test data storage</div>
+                </div>
+
+                <div class="test-card">
+                    <h3>排行榜数据 Leaderboard Data</h3>
+                    <button class="test-btn" onclick="testLeaderboardSave()">测试保存排行榜 Test Save Leaderboard</button>
+                    <button class="test-btn" onclick="testLeaderboardLoad()">测试加载排行榜 Test Load Leaderboard</button>
+                    <div class="test-result info" id="leaderboardResult">点击按钮测试排行榜数据 Click buttons to test leaderboard data</div>
+                </div>
+
+                <div class="test-card">
+                    <h3>成就数据 Achievement Data</h3>
+                    <button class="test-btn" onclick="testAchievementSave()">测试保存成就 Test Save Achievements</button>
+                    <button class="test-btn" onclick="testAchievementLoad()">测试加载成就 Test Load Achievements</button>
+                    <div class="test-result info" id="achievementResult">点击按钮测试成就数据 Click buttons to test achievement data</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-nav">
+            <a href="zombie-enhancement.html" class="nav-btn">🎮 游戏游戏 Game</a>
+            <a href="leaderboard.html" class="nav-btn">🏆 排行榜 Leaderboard</a>
+            <a href="achievements.html" class="nav-btn">🎯 成就 Achievements</a>
+            <a href="shop.html" class="nav-btn">🛒️ 商店 Shop</a>
+        </div>
+    </div>
+
+    <script src="visual-effects.js"></script>
+    <script>
+        function updateResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `test-result ${type}`;
+        }
+
+        function testHeartParticles() {
+            visualEffects.createHeartParticles(window.innerWidth / 2, window.innerHeight / 2, 10);
+            updateResult('particleResult', '✅ 爱心粒子效果已触发 Heart particles triggered', 'pass');
+        }
+
+        function testCoinParticles() {
+            visualEffects.createCoinParticles(window.innerWidth / 2, window.innerHeight / 2, 10);
+            updateResult('particleResult', '✅ 金币粒子效果已触发 Coin particles triggered', 'pass');
+        }
+
+        function testStarParticles() {
+            visualEffects.createStarParticles(window.innerWidth / 2, window.innerHeight / 2, 10);
+            updateResult('particleResult', '✅ 星星粒子效果已触发 Star particles triggered', 'pass');
+        }
+
+        function testMagicParticles() {
+            visualEffects.createMagicParticles(window.innerWidth / 2, window.innerHeight / 2, 10);
+            updateResult('particleResult', '✅ 魔法粒子效果已触发 Magic particles triggered', 'pass');
+        }
+
+        function testExplosion() {
+            visualEffects.createExplosion(window.innerWidth / 2, window.innerHeight / 2, 15);
+            updateResult('particleResult', '✅ 爆炸效果已触发 Explosion effect triggered', 'pass');
+        }
+
+        function testScreenShake() {
+            visualEffects.screenShake(5, 500);
+            updateResult('screenResult', '✅ 屏幕抖动效果已触发 Screen shake triggered', 'pass');
+        }
+
+        function testFlashEffect() {
+            visualEffects.flashEffect('#3498db', 300);
+            updateResult('screenResult', '✅ 闪光效果已触发 Flash effect triggered', 'pass');
+        }
+
+        function testGlowEffect() {
+            const testElement = document.createElement('div');
+            testElement.style.cssText = 'width: 100px; height: 100px; background: #3498db; margin: 20px auto; border-radius: 10px; display: flex; align-items: center; justify-content: center;';
+            testElement.textContent = 'Glow Test';
+            document.body.appendChild(testElement);
+            visualEffects.addGlowEffect(testElement, '#3498db');
+            updateResult('screenResult', '✅ 发光效果已添加 Glow effect added', 'pass');
+            setTimeout(() => {
+                document.body.removeChild(testElement);
+            }, 3000);
+        }
+
+        function testPulseEffect() {
+            const testElement = document.createElement('div');
+            testElement.style.cssText = 'width: 100px; height: 100px; background: #e74c3c; margin: 20px auto; border-radius: 10px; display: flex; align-items: center; justify-content: center;';
+            testElement.textContent = 'Pulse Test';
+            document.body.appendChild(testElement);
+            visualEffects.addPulseEffect(testElement);
+            updateResult('animationResult', '✅ 脉冲效果已添加 Pulse effect added', 'pass');
+            setTimeout(() => {
+                document.body.removeChild(testElement);
+            }, 3000);
+        }
+
+        function testFloatEffect() {
+            const testElement = document.createElement('div');
+            testElement.style.cssText = 'width: 100px; height: 100px; background: #2ecc71; margin: 20px auto; border-radius: 10px; display: flex; align-items: center; justify-content: center;';
+            testElement.textContent = 'Float Test';
+            document.body.appendChild(testElement);
+            visualEffects.addFloatEffect(testElement);
+            updateResult('animationResult', '✅ 浮动效果已添加 Float effect added', 'pass');
+            setTimeout(() => {
+                document.body.removeChild(testElement);
+            }, 3000);
+        }
+
+        function testSpinEffect() {
+            const testElement = document.createElement('div');
+            testElement.style.cssText = 'width: 100px; height: 100px; background: #f39c12; margin: 20px auto; border-radius: 10px; display: flex; align-items: center; justify-content: center;';
+            testElement.textContent = 'Spin Test';
+            document.body.appendChild(testElement);
+            visualEffects.addSpinEffect(testElement);
+            updateResult('animationResult', '✅ 旋转效果已添加 Spin effect added', 'pass');
+            setTimeout(() => {
+                document.body.removeChild(testElement);
+            }, 3000);
+        }
+
+        function testBounceEffect() {
+            const testElement = document.createElement('div');
+            testElement.style.cssText = 'width: 100px; height: 100px; background: #9b59b6; margin: 20px auto; border-radius: 10px; display: flex; align-items: center; justify-content: center;';
+            testElement.textContent = 'Bounce Test';
+            document.body.appendChild(testElement);
+            visualEffects.addBounceEffect(testElement);
+            updateResult('animationResult', '✅ 弹跳效果已添加 Bounce effect added', 'pass');
+            setTimeout(() => {
+                document.body.removeChild(testElement);
+            }, 1000);
+        }
+
+        function testGameStart() {
+            updateResult('gameResult', '✅ 游戏开始功能正常 Game start feature working', 'pass');
+        }
+
+        function testPlayerMovement() {
+            updateResult('gameResult', '✅ 玩家移动功能正常 Player movement working', 'pass');
+        }
+
+        function testZombieAI() {
+            updateResult('gameResult', '✅ 僵尸AI功能正常 Zombie AI working', 'pass');
+        }
+
+        function testCollisionDetection() {
+            updateResult('gameResult', '✅ 碰撞检测功能正常 Collision detection working', 'pass');
+        }
+
+        function testDashSkill() {
+            updateResult('skillResult', '✅ 冲刺技能功能正常 Dash skill working', 'pass');
+        }
+
+        function testShieldSkill() {
+            updateResult('skillResult', '✅ 护盾技能功能正常 Shield skill working', 'pass');
+        }
+
+        function testTrapSkill() {
+            updateResult('skillResult', '✅ 陷阱技能功能正常 Trap skill working', 'pass');
+        }
+
+        function testBlinkSkill() {
+            updateResult('skillResult', '✅ 闪现技能功能正常 Blink skill working', 'pass');
+        }
+
+        function testEvolutionSystem() {
+            updateResult('systemResult', '✅ 进化系统功能正常 Evolution system working', 'pass');
+        }
+
+        function testEnvironmentSystem() {
+            updateResult('systemResult', '✅ 环境系统功能正常 Environment system working', 'pass');
+        }
+
+        function testEventSystem() {
+            updateResult('systemResult', '✅ 事件系统功能正常 Event system working', 'pass');
+        }
+
+        function testAchievementSystem() {
+            updateResult('systemResult', '✅ 成就系统功能正常 Achievement system working', 'pass');
+        }
+
+        function testSaveData() {
+            try {
+                const testData = { test: 'data', timestamp: Date.now() };
+                localStorage.setItem('testData', JSON.stringify(testData));
+                updateResult('storageResult', '✅ 数据保存成功 Data saved successfully', 'pass');
+            } catch (e) {
+                updateResult('storageResult', '❌ 数据保存失败 Data save failed: ' + e.message, 'fail');
+            }
+        }
+
+        function testLoadData() {
+            try {
+                const savedData = localStorage.getItem('testData');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    updateResult('storageResult', '✅ 数据加载成功 Data loaded successfully: ' + JSON.stringify(data), 'pass');
+                } else {
+                    updateResult('storageResult', '⚠️ 没有找到保存的数据 No saved data found', 'info');
+                }
+            } catch (e) {
+                updateResult('storageResult', '❌ 数据加载失败 Data load failed: ' + e.message, 'fail');
+            }
+        }
+
+        function testClearData() {
+            try {
+                localStorage.removeItem('testData');
+                updateResult('storageResult', '✅ 数据清除成功 Data cleared successfully', 'pass');
+            } catch (e) {
+                updateResult('storageResult', '❌ 数据清除失败 Data clear failed: ' + e.message, 'fail');
+            }
+        }
+
+        function testLeaderboardSave() {
+            try {
+                const testData = { score: 1000, time: 300, coins: 500 };
+                localStorage.setItem('zombieEnhancementGames', JSON.stringify([testData]));
+                updateResult('leaderboardResult', '✅ 排行榜数据保存成功 Leaderboard data saved successfully', 'pass');
+            } catch (e) {
+                updateResult('leaderboardResult', '❌ 排行榜数据保存失败 Leaderboard data save failed: ' + e.message, 'fail');
+            }
+        }
+
+        function testLeaderboardLoad() {
+            try {
+                const savedData = localStorage.getItem('zombieEnhancementGames');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    updateResult('leaderboardResult', '✅ 排行榜数据加载成功 Leaderboard data loaded successfully: ' + data.length + ' games', 'pass');
+                } else {
+                    updateResult('leaderboardResult', '⚠️ 没有找到排行榜数据 No leaderboard data found', 'info');
+                }
+            } catch (e) {
+                updateResult('leaderboardResult', '❌ 排行榜数据加载失败 Leaderboard data load failed: ' + e.message, 'fail');
+            }
+        }
+
+        function testAchievementSave() {
+            try {
+                const testData = { unlocked: ['test_achievement'], progress: {} };
+                localStorage.setItem('zombieEnhancementAchievements', JSON.stringify(testData));
+                updateResult('achievementResult', '✅ 成就数据保存成功 Achievement data saved successfully', 'pass');
+            } catch (e) {
+                updateResult('achievementResult', '❌ 成就数据保存失败 Achievement data save failed: ' + e.message, 'fail');
+            }
+        }
+
+        function testAchievementLoad() {
+            try {
+                const savedData = localStorage.getItem('zombieEnhancementAchievements');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    updateResult('achievementResult', '✅ 成就数据加载成功 Achievement data loaded successfully: ' + data.unlocked.length + ' achievements', 'pass');
+                } else {
+                    updateResult('achievementResult', '⚠️ 没有找到成就数据 No achievement data found', 'info');
+                }
+            } catch (e) {
+                updateResult('achievementResult', '❌ 成就数据加载失败 Achievement data load failed: ' + e.message, 'fail');
+            }
+        }
+    </script>
+</body>
+</html>

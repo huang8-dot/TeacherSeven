@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>僵尸模式增强版 Zombie Mode Enhanced</title>
+    <link rel="stylesheet" href="zombie-enhancement.css">
+    <link rel="stylesheet" href="visual-effects.css">
+</head>
+<body>
+    <div class="enhancement-container">
+        <div class="header">
+            <h1>🧟 僵尸模式增强版 Zombie Mode Enhanced</h1>
+            <div class="version-info">Version 8.0</div>
+            <a href="zombie-mode.html" class="back-btn">🏠 返回基础版 Return to Basic</a>
+        </div>
+
+        <div class="main-content">
+            <div class="game-section">
+                <div class="game-info">
+                    <div class="info-item">
+                        <span class="label">💖 生命值 Health:</span>
+                        <span class="value" id="health">100</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">🏆 分数 Score:</span>
+                        <span class="value" id="score">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">⏱️ 时间 Time:</span>
+                        <span class="value" id="time">00:00</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">🌍 环境 Environment:</span>
+                        <span class="value" id="environment">🌅 白天 Day</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">💰 金币 Coins:</span>
+                        <span class="value" id="coins">0</span>
+                    </div>
+                </div>
+
+                <div class="game-map" id="gameMap"></div>
+
+                <div class="controls">
+                    <div class="direction-controls">
+                        <button class="control-btn" id="upBtn">⬆️</button>
+                        <div class="horizontal-controls">
+                            <button class="control-btn" id="leftBtn">⬅️</button>
+                            <button class="control-btn" id="downBtn">⬇️</button>
+                            <button class="control-btn" id="rightBtn">➡️</button>
+                        </div>
+                    </div>
+                    <div class="skill-controls">
+                        <button class="skill-btn" id="attackBtn"><span>⚔️ Attack</span></button>
+                    </div>
+                </div>
+
+                <div class="game-actions">
+                    <button class="action-btn start-btn" id="startBtn">🎮 开始游戏 Start Game</button>
+                    <button class="action-btn pause-btn" id="pauseBtn">⏸️ 暂停 Pause</button>
+                    <button class="action-btn restart-btn" id="restartBtn">🔄 重新开始 Restart</button>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <h2>🧟 僵尸进化 Zombie Evolution</h2>
+                    <div class="evolution-stages">
+                        <div class="evolution-stage" data-stage="1">
+                            <div class="stage-icon">🧟</div>
+                            <div class="stage-info">
+                                <div class="stage-name">幼年僵尸 Young</div>
+                                <div class="stage-stats">速度: 1.0x | 范围: 3格</div>
+                            </div>
+                        </div>
+                        <div class="evolution-stage" data-stage="2">
+                            <div class="stage-icon">🧟‍♂️</div>
+                            <div class="stage-info">
+                                <div class="stage-name">成年僵尸 Adult</div>
+                                <div class="stage-stats">速度: 1.2x | 范围: 4格</div>
+                            </div>
+                        </div>
+                        <div class="evolution-stage" data-stage="3">
+                            <div class="stage-icon">🧟‍♀️</div>
+                            <div class="stage-info">
+                                <div class="stage-name">精英僵尸 Elite</div>
+                                <div class="stage-stats">速度: 1.4x | 范围: 5格</div>
+                            </div>
+                        </div>
+                        <div class="evolution-stage" data-stage="4">
+                            <div class="stage-icon">🧟‍♂️</div>
+                            <div class="stage-info">
+                                <div class="stage-name">传说僵尸 Legendary</div>
+                                <div class="stage-stats">速度: 1.6x | 范围: 6格</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="evolution-progress">
+                        <div class="progress-label">进化点数 Evolution Points (EP):</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="epProgress" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-value" id="epValue">0 / 600 EP</div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h2>⚡ 玩家技能 Player Skills</h2>
+                    <div class="skills-container">
+                        <div class="skill-slot" data-skill="dash">
+                            <div class="skill-icon">🏃</div>
+                            <div class="skill-name">冲刺 Dash</div>
+                            <div class="skill-cooldown" id="dashCooldown">10s</div>
+                            <div class="skill-key">Space</div>
+                        </div>
+                        <div class="skill-slot" data-skill="shield">
+                            <div class="skill-icon">🛡️</div>
+                            <div class="skill-name">护盾 Shield</div>
+                            <div class="skill-cooldown" id="shieldCooldown">30s</div>
+                            <div class="skill-key">E</div>
+                        </div>
+                        <div class="skill-slot" data-skill="trap">
+                            <div class="skill-icon">⚠️</div>
+                            <div class="skill-name">陷阱 Trap</div>
+                            <div class="skill-cooldown" id="trapCooldown">20s</div>
+                            <div class="skill-key">Q</div>
+                        </div>
+                        <div class="skill-slot" data-skill="blink">
+                            <div class="skill-icon">✨</div>
+                            <div class="skill-name">闪现 Blink</div>
+                            <div class="skill-cooldown" id="blinkCooldown">25s</div>
+                            <div class="skill-key">R</div>
+                        </div>
+                        <div class="skill-slot" data-skill="attack">
+                            <div class="skill-icon">⚔️</div>
+                            <div class="skill-name">攻击 Attack</div>
+                            <div class="skill-cooldown" id="attackCooldown">16s</div>
+                            <div class="skill-key">F</div>
+                        </div>
+                    </div>
+                    <div class="passive-skills">
+                        <div class="passive-skill">
+                            <span class="passive-icon">⚡</span>
+                            <span class="passive-name">敏捷 Agility</span>
+                            <span class="passive-effect">速度 +20%</span>
+                        </div>
+                        <div class="passive-skill">
+                            <span class="passive-icon">🍀</span>
+                            <span class="passive-name">幸运 Luck</span>
+                            <span class="passive-effect">道具 +30%</span>
+                        </div>
+                        <div class="passive-skill">
+                            <span class="passive-icon">💪</span>
+                            <span class="passive-name">坚韧 Resilience</span>
+                            <span class="passive-effect">减伤 50%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h2>🎲 随机事件 Random Events</h2>
+                    <div class="event-log" id="eventLog">
+                        <div class="event-item">游戏开始，祝你好运！Good luck!</div>
+                    </div>
+                    <div class="event-timer">
+                        <span class="timer-label">下次事件 Next Event:</span>
+                        <span class="timer-value" id="eventTimer">30s</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h2>📊 游戏统计 Game Stats</h2>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">击败僵尸 Zombies Defeated</div>
+                            <div class="stat-value" id="zombiesDefeated">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">收集道具 Items Collected</div>
+                            <div class="stat-value" id="itemsCollected">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">使用技能 Skills Used</div>
+                            <div class="stat-value" id="skillsUsed">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">完成任务 Tasks Completed</div>
+                            <div class="stat-value" id="tasksCompleted">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-nav">
+            <a href="leaderboard.html" class="nav-btn">🏆 排行榜 Leaderboard</a>
+            <a href="achievements.html" class="nav-btn">🎯 成就 Achievements</a>
+            <a href="shop.html" class="nav-btn">🛒️ 商店 Shop</a>
+            <a href="update-history.html" class="nav-btn">📜 更新历史 Update History</a>
+        </div>
+    </div>
+
+    <div class="modal" id="gameOverModal">
+        <div class="modal-content">
+            <h2>🎮 游戏结束 Game Over</h2>
+            <div class="game-over-stats">
+                <div class="stat-row">
+                    <span class="stat-label">最终分数 Final Score:</span>
+                    <span class="stat-value" id="finalScore">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">存活时间 Survival Time:</span>
+                    <span class="stat-value" id="finalTime">00:00</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">获得金币 Coins Earned:</span>
+                    <span class="stat-value" id="finalCoins">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">进化点数 Evolution Points:</span>
+                    <span class="stat-value" id="finalEP">0</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn" id="restartModalBtn">🔄 重新开始 Restart</button>
+                <button class="modal-btn" id="returnModalBtn">🏠 返回 Return</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="visual-effects.js"></script>
+    <script src="zombie-enhancement.js"></script>
+</body>
+</html>

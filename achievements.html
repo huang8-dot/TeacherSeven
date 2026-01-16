@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成就系统 Achievement System</title>
+    <link rel="stylesheet" href="achievements.css">
+</head>
+<body>
+    <div class="achievements-container">
+        <div class="header">
+            <h1>🎯 成就系统 Achievement System</h1>
+            <p>解锁成就，展示你的游戏成就 Unlock achievements, show your game accomplishments</p>
+            <a href="zombie-enhancement.html" class="back-btn">🏠 返回游戏 Return to Game</a>
+        </div>
+
+        <div class="content">
+            <div class="progress-overview">
+                <div class="progress-card">
+                    <div class="progress-icon">🏆</div>
+                    <div class="progress-info">
+                        <div class="progress-label">总成就 Total Achievements</div>
+                        <div class="progress-value"><span id="totalAchievements">0</span> / <span id="maxAchievements">0</span></div>
+                    </div>
+                </div>
+                <div class="progress-card">
+                    <div class="progress-icon">⭐</div>
+                    <div class="progress-info">
+                        <div class="progress-label">完成进度 Completion Rate</div>
+                        <div class="progress-value" id="completionRate">0%</div>
+                    </div>
+                </div>
+                <div class="progress-card">
+                    <div class="progress-icon">🎖️</div>
+                    <div class="progress-info">
+                        <div class="progress-label">稀有成就 Rare Achievements</div>
+                        <div class="progress-value" id="rareAchievements">0</div>
+                    </div>
+                </div>
+                <div class="progress-card">
+                    <div class="progress-icon">🔥</div>
+                    <div class="progress-info">
+                        <div class="progress-label">最近解锁 Recently Unlocked</div>
+                        <div class="progress-value" id="recentlyUnlocked">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="achievements-section">
+                <div class="section-header">
+                    <h2>⚔️ 战斗成就 Combat Achievements</h2>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">全部 All</button>
+                        <button class="filter-btn" data-filter="unlocked">已解锁 Unlocked</button>
+                        <button class="filter-btn" data-filter="locked">未解锁 Locked</button>
+                    </div>
+                </div>
+                <div class="achievements-grid" id="combatAchievements">
+                </div>
+            </div>
+
+            <div class="achievements-section">
+                <div class="section-header">
+                    <h2>🗺️ 探索成就 Exploration Achievements</h2>
+                </div>
+                <div class="achievements-grid" id="explorationAchievements">
+                </div>
+            </div>
+
+            <div class="achievements-section">
+                <div class="section-header">
+                    <h2>💪 生存成就 Survival Achievements</h2>
+                </div>
+                <div class="achievements-grid" id="survivalAchievements">
+                </div>
+            </div>
+
+            <div class="achievements-section">
+                <div class="section-header">
+                    <h2>🌟 特殊成就 Special Achievements</h2>
+                </div>
+                <div class="achievements-grid" id="specialAchievements">
+                </div>
+            </div>
+
+            <div class="achievements-section">
+                <div class="section-header">
+                    <h2>📜 最近解锁 Recent Unlocks</h2>
+                </div>
+                <div class="recent-unlocks" id="recentUnlocks">
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-nav">
+            <a href="zombie-enhancement.html" class="nav-btn">🎮 游戏 Game</a>
+            <a href="leaderboard.html" class="nav-btn">🏆 排行榜 Leaderboard</a>
+            <a href="shop.html" class="nav-btn">🛒️ 商店 Shop</a>
+            <a href="update-history.html" class="nav-btn">📜 更新历史 Update History</a>
+        </div>
+    </div>
+
+    <div class="achievement-modal" id="achievementModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="achievement-icon" id="modalIcon">🏆</div>
+                <div class="achievement-info">
+                    <h2 id="modalTitle">成就名称 Achievement Name</h2>
+                    <div class="achievement-rarity" id="modalRarity">普通 Common</div>
+                </div>
+                <button class="close-btn" id="closeModalBtn">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="achievement-description" id="modalDescription">
+                    成就描述 Achievement description
+                </div>
+                <div class="achievement-progress">
+                    <div class="progress-label">进度 Progress</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="modalProgressFill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-value" id="modalProgressValue">0 / 100</div>
+                </div>
+                <div class="achievement-rewards">
+                    <div class="rewards-label">奖励 Rewards</div>
+                    <div class="rewards-list" id="modalRewards">
+                        <span class="reward">💰 100 金币</span>
+                    </div>
+                </div>
+                <div class="achievement-status" id="modalStatus">
+                    <span class="status-icon">🔒</span>
+                    <span class="status-text">未解锁 Locked</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="achievements.js"></script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商店 Shop</title>
+    <link rel="stylesheet" href="shop.css">
+</head>
+<body>
+    <div class="shop-container">
+        <div class="header">
+            <h1>🛒️ 商店 Shop</h1>
+            <p>使用金币购买道具和技能 Use coins to buy items and skills</p>
+            <div class="coin-display">
+                <span class="coin-icon">💰</span>
+                <span class="coin-amount" id="coinAmount">0</span>
+            </div>
+            <a href="zombie-enhancement.html" class="back-btn">🏠 返回游戏 Return to Game</a>
+        </div>
+
+        <div class="content">
+            <div class="shop-tabs">
+                <button class="tab-btn active" data-tab="consumables">消耗品 Consumables</button>
+                <button class="tab-btn" data-tab="permanent">永久道具 Permanent Items</button>
+                <button class="tab-btn" data-tab="skills">技能升级 Skill Upgrades</button>
+            </div>
+
+            <div class="shop-section" id="consumables">
+                <div class="section-header">
+                    <h2>📦 消耗品 Consumables</h2>
+                    <p class="section-desc">一次性使用的道具，立即生效 One-time use items, take effect immediately</p>
+                </div>
+                <div class="shop-grid" id="consumablesGrid">
+                </div>
+            </div>
+
+            <div class="shop-section" id="permanent">
+                <div class="section-header">
+                    <h2>💎 永久道具 Permanent Items</h2>
+                    <p class="section-desc">永久提升属性，持续生效 Permanently boost stats, always active</p>
+                </div>
+                <div class="shop-grid" id="permanentGrid">
+                </div>
+            </div>
+
+            <div class="shop-section" id="skills">
+                <div class="section-header">
+                    <h2>⚡ 技能升级 Skill Upgrades</h2>
+                    <p class="section-desc">升级技能，增强效果 Upgrade skills, enhance effects</p>
+                </div>
+                <div class="shop-grid" id="skillsGrid">
+                </div>
+            </div>
+
+            <div class="purchase-history">
+                <div class="section-header">
+                    <h2>📜 购买历史 Purchase History</h2>
+                </div>
+                <div class="history-list" id="purchaseHistory">
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-nav">
+            <a href="zombie-enhancement.html" class="nav-btn">🎮 游戏 Game</a>
+            <a href="leaderboard.html" class="nav-btn">🏆 排行榜 Leaderboard</a>
+            <a href="achievements.html" class="nav-btn">🎯 成就 Achievements</a>
+            <a href="update-history.html" class="nav-btn">📜 更新历史 Update History</a>
+        </div>
+    </div>
+
+    <div class="item-modal" id="itemModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="item-icon" id="modalIcon">📦</div>
+                <div class="item-info">
+                    <h2 id="modalTitle">道具名称 Item Name</h2>
+                    <div class="item-rarity" id="modalRarity">普通 Common</div>
+                </div>
+                <button class="close-btn" id="closeModalBtn">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="item-description" id="modalDescription">
+                    道具描述 Item description
+                </div>
+                <div class="item-effects">
+                    <div class="effects-label">效果 Effects</div>
+                    <div class="effects-list" id="modalEffects">
+                        <span class="effect">+10 生命值</span>
+                    </div>
+                </div>
+                <div class="item-price">
+                    <div class="price-label">价格 Price</div>
+                    <div class="price-value">
+                        <span class="coin-icon">💰</span>
+                        <span id="modalPrice">100</span>
+                    </div>
+                </div>
+                <div class="item-quantity">
+                    <div class="quantity-label">数量 Quantity</div>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" id="decreaseBtn">-</button>
+                        <input type="number" class="quantity-input" id="quantityInput" value="1" min="1" max="99">
+                        <button class="quantity-btn" id="increaseBtn">+</button>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="buy-btn" id="buyBtn">购买 Buy</button>
+                    <button class="cancel-btn" id="cancelBtn">取消 Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="shop.js"></script>
+</body>
+</html>
