@@ -1333,7 +1333,11 @@
             <div class="feedback-body">
                 <p>感谢您的反馈！请通过以下邮箱联系我们：</p>
                 <p class="feedback-email">
-                    <a href="mailto:huangameing@163.com">huangameing@163.com</a>
+                    <a href="mailto:huangameing@163.com" onclick="triggerFlyAnimation(event)">
+                        <span class="email-icon">📧</span>
+                        <span class="email-text">huangameing@163.com</span>
+                        <span class="new-message-badge"></span>
+                    </a>
                 </p>
                 <p class="feedback-note">点击邮箱地址将打开您的默认邮件客户端</p>
             </div>
@@ -1359,18 +1363,41 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-            animation: pulse-feedback 2s infinite;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: breathe-feedback 3s ease-in-out infinite;
             user-select: none;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             touch-action: none;
+            overflow: visible;
+            will-change: transform, opacity;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .feedback-float-btn::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: inherit;
+            z-index: -1;
+            animation: pulse-ripple 2s ease-out infinite;
+            opacity: 0;
         }
 
         .feedback-float-btn:hover {
             background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
             box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5);
+            transform: scale(1.05);
+        }
+
+        .feedback-float-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 10px rgba(46, 204, 113, 0.3);
         }
 
         .feedback-float-btn.dragging {
@@ -1379,6 +1406,33 @@
             box-shadow: 0 8px 25px rgba(46, 204, 113, 0.6);
             background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
             transition: background 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+            animation: none;
+        }
+
+        .feedback-float-btn.dragging::before {
+            animation: none;
+        }
+
+        @keyframes breathe-feedback {
+            0%, 100% {
+                background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+                box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+            }
+            50% {
+                background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+                box-shadow: 0 6px 25px rgba(46, 204, 113, 0.6);
+            }
+        }
+
+        @keyframes pulse-ripple {
+            0% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(1.8);
+                opacity: 0;
+            }
         }
 
         .feedback-btn-content {
@@ -1387,11 +1441,17 @@
             align-items: center;
             justify-content: center;
             gap: 5px;
+            pointer-events: none;
         }
 
         .feedback-btn-icon {
             font-size: 24px;
             line-height: 1;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .feedback-float-btn:hover .feedback-btn-icon {
+            transform: scale(1.1);
         }
 
         .feedback-btn-text {
@@ -1508,13 +1568,124 @@
             padding: 10px 20px;
             background: rgba(231, 76, 60, 0.2);
             border-radius: 10px;
-            display: inline-block;
-            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .feedback-email a::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #e74c3c, #c0392b, #e74c3c, #c0392b);
+            background-size: 400% 400%;
+            border-radius: 12px;
+            z-index: -1;
+            animation: gradient-border 3s ease infinite;
+        }
+
+        @keyframes gradient-border {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         .feedback-email a:hover {
             background: rgba(231, 76, 60, 0.4);
             transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+        }
+
+        .feedback-email a:hover .email-icon {
+            transform: rotate(15deg);
+        }
+
+        .feedback-email a:hover .email-text {
+            transform: translateX(3px);
+        }
+
+        .feedback-email a:active {
+            transform: scale(0.98);
+        }
+
+        .email-icon {
+            font-size: 24px;
+            transition: transform 0.3s ease-in-out;
+            display: inline-block;
+        }
+
+        .email-text {
+            transition: transform 0.3s ease-in-out;
+            display: inline-block;
+        }
+
+        .feedback-email a::after {
+            content: '📧';
+            position: absolute;
+            font-size: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease-out;
+            z-index: 1000;
+        }
+
+        .feedback-email a.flying::after {
+            opacity: 1;
+            animation: fly-email 1s ease-out forwards;
+        }
+
+        @keyframes fly-email {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(100px, -100px) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        .new-message-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 12px;
+            height: 12px;
+            background: #e74c3c;
+            border-radius: 50%;
+            animation: blink-badge 2s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.8);
+        }
+
+        @keyframes blink-badge {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+        }
+
+        .feedback-note {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            margin-top: 10px;
         }
 
         .feedback-note {
@@ -1586,6 +1757,38 @@
                 font-size: 14px;
             }
         }
+
+        @media (prefers-reduced-motion: reduce) {
+            .feedback-float-btn,
+            .feedback-float-btn::before,
+            .feedback-email a::before,
+            .new-message-badge {
+                animation: none !important;
+                transition: none !important;
+            }
+
+            .feedback-float-btn:hover {
+                transform: none;
+            }
+
+            .feedback-email a:hover .email-icon {
+                transform: none;
+            }
+
+            .feedback-email a:hover .email-text {
+                transform: none;
+            }
+        }
+
+        @media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
+            .feedback-float-btn {
+                animation-duration: 4s;
+            }
+
+            .feedback-float-btn::before {
+                animation-duration: 3s;
+            }
+        }
     </style>
 
     <script>
@@ -1609,6 +1812,15 @@
 
         function closeFeedback() {
             document.getElementById('feedbackModal').classList.remove('active');
+        }
+
+        function triggerFlyAnimation(event) {
+            const emailLink = event.currentTarget;
+            emailLink.classList.add('flying');
+            
+            setTimeout(() => {
+                emailLink.classList.remove('flying');
+            }, 1000);
         }
 
         document.getElementById('feedbackModal').addEventListener('click', function(e) {
