@@ -919,8 +919,6 @@
             padding: 40px;
             max-width: 500px;
             width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
             text-align: center;
             box-shadow: 0 20px 60px rgba(255, 0, 0, 0.5);
         }
@@ -930,8 +928,6 @@
             font-weight: bold;
             margin-bottom: 20px;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-            word-wrap: break-word;
-            overflow-wrap: break-word;
         }
 
         .game-over-icon {
@@ -942,8 +938,6 @@
         .game-over-stats {
             margin-bottom: 30px;
             font-size: 18px;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
         }
 
         .game-over-stats div {
@@ -1098,346 +1092,6 @@
         @media (max-width: 480px) {
             .game-title {
                 font-size: 16px;
-            }
-
-            .game-over-content {
-                padding: 20px;
-                max-width: 95%;
-                max-height: 80vh;
-                border-radius: 16px;
-            }
-
-            .game-over-icon {
-                font-size: 60px;
-                margin-bottom: 15px;
-            }
-
-            .game-over-title {
-                font-size: 24px;
-                margin-bottom: 15px;
-            }
-
-            .game-over-stats {
-                font-size: 14px;
-                margin-bottom: 20px;
-            }
-
-            .game-over-stats div {
-                margin-bottom: 8px;
-            }
-
-            .action-btn {
-                padding: 12px 24px;
-                font-size: 14px;
-            }
-
-            .feedback-content {
-                padding: 20px;
-                max-width: 90%;
-                max-height: 80vh;
-                border-radius: 16px;
-            }
-
-            .feedback-header {
-                margin-bottom: 15px;
-                padding-bottom: 12px;
-            }
-
-            .feedback-header h3 {
-                font-size: 20px;
-            }
-
-            .feedback-body p {
-                font-size: 15px;
-                margin: 12px 0;
-            }
-
-            .feedback-email {
-                margin: 15px 0;
-            }
-
-            .feedback-email a {
-                font-size: 16px;
-                padding: 10px 18px;
-                gap: 8px;
-            }
-
-            .feedback-note {
-                font-size: 13px;
-                margin-top: 8px;
-            }
-
-            .game-over-content {
-                padding: 30px;
-                max-width: 85%;
-                max-height: 85vh;
-                border-radius: 18px;
-            }
-
-            .game-over-icon {
-                font-size: 70px;
-                margin-bottom: 18px;
-            }
-
-            .game-over-title {
-                font-size: 30px;
-                margin-bottom: 18px;
-            }
-
-            .game-over-stats {
-                font-size: 16px;
-                margin-bottom: 25px;
-            }
-
-            .game-over-stats div {
-                margin-bottom: 9px;
-            }
-
-            .action-btn {
-                padding: 14px 28px;
-                font-size: 15px;
-            }
-
-            /* iPad横屏优化 */
-            @media (orientation: landscape) and (max-width: 1024px) and (min-width: 768px) {
-                .game-over-content {
-                    padding: 25px;
-                    max-width: 80%;
-                    max-height: 90vh;
-                }
-
-                .game-over-icon {
-                    font-size: 65px;
-                    margin-bottom: 16px;
-                }
-
-                .game-over-title {
-                    font-size: 28px;
-                    margin-bottom: 16px;
-                }
-
-                .game-over-stats {
-                    font-size: 15px;
-                    margin-bottom: 22px;
-                }
-
-                .feedback-content {
-                    padding: 22px;
-                    max-width: 80%;
-                    max-height: 90vh;
-                }
-
-                .feedback-header h3 {
-                    font-size: 21px;
-                }
-
-                .feedback-body p {
-                    font-size: 14px;
-                }
-
-                .feedback-email a {
-                    font-size: 17px;
-                    padding: 9px 19px;
-                }
-            }
-
-            /* iPhone 12/13/14 系列优化 */
-            @media (max-width: 430px) and (min-width: 390px) {
-                .game-over-content {
-                    padding: 18px;
-                    max-width: 92%;
-                    max-height: 78vh;
-                    border-radius: 15px;
-                }
-
-                .game-over-icon {
-                    font-size: 55px;
-                    margin-bottom: 14px;
-                }
-
-                .game-over-title {
-                    font-size: 22px;
-                    margin-bottom: 14px;
-                }
-
-                .game-over-stats {
-                    font-size: 13px;
-                    margin-bottom: 18px;
-                }
-
-                .game-over-stats div {
-                    margin-bottom: 7px;
-                }
-
-                .action-btn {
-                    padding: 11px 22px;
-                    font-size: 13px;
-                }
-            }
-
-            /* Samsung Galaxy 系列优化 */
-            @media (max-width: 412px) and (min-width: 360px) {
-                .game-over-content {
-                    padding: 16px;
-                    max-width: 93%;
-                    max-height: 76vh;
-                    border-radius: 14px;
-                }
-
-                .game-over-icon {
-                    font-size: 50px;
-                    margin-bottom: 12px;
-                }
-
-                .game-over-title {
-                    font-size: 20px;
-                    margin-bottom: 12px;
-                }
-
-                .game-over-stats {
-                    font-size: 12px;
-                    margin-bottom: 16px;
-                }
-
-                .action-btn {
-                    padding: 10px 20px;
-                    font-size: 12px;
-                }
-            }
-
-            /* iPad Pro 优化 */
-            @media (min-width: 1024px) and (max-width: 1366px) {
-                .game-over-content {
-                    padding: 35px;
-                    max-width: 75%;
-                    max-height: 88vh;
-                }
-
-                .game-over-icon {
-                    font-size: 75px;
-                    margin-bottom: 20px;
-                }
-
-                .game-over-title {
-                    font-size: 32px;
-                    margin-bottom: 20px;
-                }
-
-                .game-over-stats {
-                    font-size: 17px;
-                    margin-bottom: 28px;
-                }
-
-                .action-btn {
-                    padding: 15px 30px;
-                    font-size: 16px;
-                }
-
-                .feedback-content {
-                    padding: 28px;
-                    max-width: 75%;
-                    max-height: 88vh;
-                }
-
-                .feedback-header h3 {
-                    font-size: 23px;
-                }
-
-                .feedback-body p {
-                    font-size: 16px;
-                }
-
-                .feedback-email a {
-                    font-size: 19px;
-                    padding: 11px 22px;
-                }
-            }
-
-            /* 横屏模式通用优化 */
-            @media (orientation: landscape) and (max-height: 600px) {
-                .game-over-content {
-                    max-height: 95vh;
-                    padding: 20px;
-                }
-
-                .game-over-icon {
-                    font-size: 50px;
-                    margin-bottom: 10px;
-                }
-
-                .game-over-title {
-                    font-size: 24px;
-                    margin-bottom: 12px;
-                }
-
-                .game-over-stats {
-                    font-size: 14px;
-                    margin-bottom: 15px;
-                }
-
-                .game-over-stats div {
-                    margin-bottom: 6px;
-                }
-
-                .action-btn {
-                    padding: 10px 24px;
-                    font-size: 14px;
-                }
-
-                .feedback-content {
-                    max-height: 95vh;
-                    padding: 18px;
-                }
-
-                .feedback-header {
-                    margin-bottom: 12px;
-                    padding-bottom: 10px;
-                }
-
-                .feedback-header h3 {
-                    font-size: 19px;
-                }
-
-                .feedback-body p {
-                    font-size: 14px;
-                    margin: 10px 0;
-                }
-
-                .feedback-email {
-                    margin: 12px 0;
-                }
-
-                .feedback-email a {
-                    font-size: 15px;
-                    padding: 8px 16px;
-                }
-
-                .feedback-note {
-                    font-size: 12px;
-                    margin-top: 6px;
-                }
-            }
-
-            /* 竖屏模式通用优化 */
-            @media (orientation: portrait) and (max-width: 768px) {
-                .game-over-content {
-                    max-height: 80vh;
-                }
-
-                .feedback-content {
-                    max-height: 80vh;
-                }
-            }
-
-            /* 横屏模式通用优化 */
-            @media (orientation: landscape) and (max-width: 768px) {
-                .game-over-content {
-                    max-height: 90vh;
-                }
-
-                .feedback-content {
-                    max-height: 90vh;
-                }
             }
             
             /* 确保在极小屏幕上也隐藏目标地点和当前方向区域 */
@@ -1649,12 +1303,33 @@
                 <div class="feedback-btn-text">反馈</div>
             </div>
         </div>
+
+        <!-- 反馈弹窗 -->
+        <div id="feedbackModal" class="feedback-modal">
+            <div class="feedback-content">
+                <div class="feedback-header">
+                    <h3>� 反馈 Feedback</h3>
+                    <button class="feedback-close" onclick="closeFeedback()">✕</button>
+                </div>
+                <div class="feedback-body">
+                    <p>感谢您的反馈！请通过以下邮箱联系我们：</p>
+                    <p class="feedback-email">
+                        <a href="mailto:huangameing@163.com" onclick="triggerFlyAnimation(event)">
+                            <span class="email-icon">📧</span>
+                            <span class="email-text">huangameing@163.com</span>
+                            <span class="new-message-badge"></span>
+                        </a>
+                    </p>
+                    <p class="feedback-note">点击邮箱地址将打开您的默认邮件客户端</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- 游戏结束弹窗 -->
     <div id="gameOverModal" class="game-over-modal">
         <div class="game-over-content">
-            <div class="game-over-icon">💀</div>
+            <div class="game-over-icon">�</div>
             <div class="game-over-title">游戏结束 Game Over</div>
             <div class="game-over-stats">
                 <div>最终分数: <span id="finalScore">0</span> Final Score</div>
@@ -1668,27 +1343,6 @@
 
     <!-- Toast提示 -->
     <div id="gameToast" class="game-toast"></div>
-
-    <!-- 反馈弹窗 -->
-    <div id="feedbackModal" class="feedback-modal">
-        <div class="feedback-content">
-            <div class="feedback-header">
-                <h3>💬 反馈 Feedback</h3>
-                <button class="feedback-close" onclick="closeFeedback()">✕</button>
-            </div>
-            <div class="feedback-body">
-                <p>感谢您的反馈！请通过以下邮箱联系我们：</p>
-                <p class="feedback-email">
-                    <a href="mailto:huangameing@163.com" onclick="triggerFlyAnimation(event)">
-                        <span class="email-icon">📧</span>
-                        <span class="email-text">huangameing@163.com</span>
-                        <span class="new-message-badge"></span>
-                    </a>
-                </p>
-                <p class="feedback-note">点击邮箱地址将打开您的默认邮件客户端</p>
-            </div>
-        </div>
-    </div>
 
     <style>
         .feedback-float-btn {
@@ -1846,8 +1500,6 @@
             padding: 30px;
             max-width: 400px;
             width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             border: 3px solid rgba(231, 76, 60, 0.5);
             transform: scale(0.9);
@@ -1856,6 +1508,22 @@
 
         .feedback-modal.active .feedback-content {
             transform: scale(1);
+        }
+
+        @media (max-width: 768px) {
+            .feedback-modal {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                z-index: 1000;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity 0.3s ease-in-out;
+            }
         }
 
         .feedback-header {
@@ -1871,7 +1539,6 @@
             color: #e74c3c;
             font-size: 24px;
             margin: 0;
-            word-wrap: break-word;
         }
 
         .feedback-close {
@@ -1887,7 +1554,6 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
-            flex-shrink: 0;
         }
 
         .feedback-close:hover {
@@ -1904,8 +1570,6 @@
             font-size: 16px;
             margin: 15px 0;
             line-height: 1.6;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
         }
 
         .feedback-email {
@@ -1929,8 +1593,6 @@
             border: 2px solid transparent;
             background-clip: padding-box;
             box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-            max-width: 100%;
-            word-break: break-all;
         }
 
         .feedback-email a::before {
@@ -2048,33 +1710,6 @@
             font-size: 14px;
             color: rgba(255, 255, 255, 0.7);
             margin-top: 10px;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-
-        @media (max-width: 1024px) and (min-width: 768px) {
-            .feedback-content {
-                max-width: 85%;
-                padding: 25px;
-                max-height: 85vh;
-            }
-
-            .feedback-header h3 {
-                font-size: 22px;
-            }
-
-            .feedback-body p {
-                font-size: 15px;
-            }
-
-            .feedback-email a {
-                font-size: 18px;
-                padding: 10px 20px;
-            }
-
-            .feedback-note {
-                font-size: 13px;
-            }
         }
 
         @media (max-width: 768px) {
@@ -2096,37 +1731,15 @@
             .feedback-content {
                 padding: 20px;
                 max-width: 90%;
-                max-height: 80vh;
-                border-radius: 16px;
-            }
-
-            .feedback-header {
-                margin-bottom: 15px;
-                padding-bottom: 12px;
             }
 
             .feedback-header h3 {
                 font-size: 20px;
             }
 
-            .feedback-body p {
-                font-size: 15px;
-                margin: 12px 0;
-            }
-
-            .feedback-email {
-                margin: 15px 0;
-            }
-
             .feedback-email a {
                 font-size: 16px;
-                padding: 10px 18px;
-                gap: 8px;
-            }
-
-            .feedback-note {
-                font-size: 13px;
-                margin-top: 8px;
+                padding: 8px 15px;
             }
 
             .feedback-modal {
@@ -2152,94 +1765,6 @@
 
             .feedback-content {
                 padding: 15px;
-                max-width: 95%;
-                max-height: 75vh;
-                border-radius: 14px;
-            }
-
-            .feedback-header {
-                margin-bottom: 12px;
-                padding-bottom: 10px;
-            }
-
-            .feedback-header h3 {
-                font-size: 18px;
-            }
-
-            .feedback-close {
-                width: 30px;
-                height: 30px;
-                font-size: 20px;
-            }
-
-            .feedback-body p {
-                font-size: 14px;
-                margin: 10px 0;
-                line-height: 1.5;
-            }
-
-            .feedback-email {
-                margin: 12px 0;
-            }
-
-            .feedback-email a {
-                font-size: 14px;
-                padding: 8px 14px;
-                gap: 6px;
-                flex-direction: column;
-            }
-
-            .email-icon {
-                font-size: 20px;
-            }
-
-            .feedback-note {
-                font-size: 12px;
-                margin-top: 6px;
-            }
-        }
-
-        @media (max-width: 375px) {
-            .feedback-content {
-                padding: 12px;
-                max-width: 98%;
-                max-height: 70vh;
-                border-radius: 12px;
-            }
-
-            .feedback-header h3 {
-                font-size: 16px;
-            }
-
-            .feedback-body p {
-                font-size: 13px;
-                margin: 8px 0;
-            }
-
-            .feedback-email a {
-                font-size: 13px;
-                padding: 6px 12px;
-            }
-
-            .email-icon {
-                font-size: 18px;
-            }
-
-            .feedback-note {
-                font-size: 11px;
-            }
-        }
-
-        @media (orientation: landscape) and (max-height: 500px) {
-            .feedback-content {
-                max-height: 90vh;
-                overflow-y: auto;
-                padding: 15px;
-            }
-
-            .feedback-header {
-                margin-bottom: 10px;
-                padding-bottom: 8px;
             }
 
             .feedback-header h3 {
@@ -2248,32 +1773,6 @@
 
             .feedback-body p {
                 font-size: 14px;
-                margin: 8px 0;
-            }
-
-            .feedback-email {
-                margin: 10px 0;
-            }
-
-            .feedback-email a {
-                padding: 8px 16px;
-            }
-
-            .feedback-note {
-                font-size: 12px;
-                margin-top: 6px;
-            }
-        }
-
-        @media (orientation: portrait) and (max-width: 768px) {
-            .feedback-content {
-                max-height: 80vh;
-            }
-        }
-
-        @media (orientation: landscape) and (max-width: 768px) {
-            .feedback-content {
-                max-height: 90vh;
             }
         }
 
@@ -2341,66 +1840,6 @@
                 emailLink.classList.remove('flying');
             }, 1000);
         }
-
-        // 屏幕方向变化处理
-        function handleOrientationChange() {
-            const feedbackModal = document.getElementById('feedbackModal');
-            const feedbackContent = feedbackModal.querySelector('.feedback-content');
-            
-            if (feedbackModal.classList.contains('active')) {
-                // 根据屏幕方向调整弹窗位置
-                const isPortrait = window.innerHeight > window.innerWidth;
-                
-                if (isPortrait) {
-                    feedbackContent.style.maxHeight = '80vh';
-                } else {
-                    feedbackContent.style.maxHeight = '90vh';
-                }
-                
-                // 确保弹窗内容在视口内
-                adjustModalPosition();
-            }
-        }
-
-        // 调整弹窗位置确保在视口内
-        function adjustModalPosition() {
-            const feedbackModal = document.getElementById('feedbackModal');
-            const feedbackContent = feedbackModal.querySelector('.feedback-content');
-            
-            if (!feedbackModal.classList.contains('active')) return;
-            
-            const modalRect = feedbackContent.getBoundingClientRect();
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-            
-            // 如果弹窗超出视口，调整位置
-            if (modalRect.top < 10) {
-                feedbackContent.style.marginTop = '10px';
-            } else if (modalRect.bottom > viewportHeight - 10) {
-                feedbackContent.style.marginTop = (viewportHeight - modalRect.height - 10) + 'px';
-            } else {
-                feedbackContent.style.marginTop = 'auto';
-            }
-            
-            if (modalRect.left < 10) {
-                feedbackContent.style.marginLeft = '10px';
-            } else if (modalRect.right > viewportWidth - 10) {
-                feedbackContent.style.marginLeft = (viewportWidth - modalRect.width - 10) + 'px';
-            } else {
-                feedbackContent.style.marginLeft = 'auto';
-            }
-        }
-
-        // 监听屏幕方向变化
-        window.addEventListener('orientationchange', handleOrientationChange);
-        window.addEventListener('resize', handleOrientationChange);
-
-        // 监听弹窗打开事件
-        document.getElementById('feedbackModal').addEventListener('transitionend', function(e) {
-            if (e.target === this && this.classList.contains('active')) {
-                adjustModalPosition();
-            }
-        });
 
         document.getElementById('feedbackModal').addEventListener('click', function(e) {
             if (e.target === this) {
